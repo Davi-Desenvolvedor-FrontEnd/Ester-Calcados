@@ -24,7 +24,7 @@ export default function ProductSection({
     >
       <div className="flex flex-col">
           <h3 className="text-xl font-bold text-[#101828]">{name}</h3>
-          <div className="w-[120px] h-[1px] bg-gray-800 rounded-4xl"></div>
+          <div className="w-30 h-px bg-gray-800 rounded-4xl"></div>
           <p className="text-[1em] font-medium text-[#101828] mt-2">
             R$ {value.toFixed(2)}
           </p>
