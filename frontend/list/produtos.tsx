@@ -71,4 +71,19 @@ const produtos = [
     },
 ];
 
-export default produtos;
+const secoes = [
+    {id: 1, name: "Sapatilhas", value: 30},
+    {id: 2, name: "Tamancos", value: 59},
+    {id: 3, name: "Rasteirinhas", value: 20},
+    {id: 4, name: "Bolsas", value: 120},
+    {id: 5, name: "Óculos", value: 5},
+    {id: 6, name: "Bijuterias", value: 4},
+    {id: 7, name: "Sandalias", value: 25},
+]
+
+let produtosList = {
+    produtos,
+    secoes
+}
+
+export default produtosList

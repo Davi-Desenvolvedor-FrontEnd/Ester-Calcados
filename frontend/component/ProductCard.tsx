@@ -1,9 +1,9 @@
 interface ProductCardProps {
-  id?: number;
-  name?: string;
-  value?: number;
-  description?: string;
-  photo?: string;
+  id: number;
+  name: string;
+  value: number;
+  description: string;
+  photo: string;
 }
 
 export default function ProductCard(props: ProductCardProps) {

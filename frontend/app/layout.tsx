@@ -31,6 +31,7 @@ export default function RootLayout({
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
           crossOrigin="anonymous"
         ></link>
+        
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

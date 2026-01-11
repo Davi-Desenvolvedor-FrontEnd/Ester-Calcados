@@ -1,16 +1,31 @@
 "use client";
 import Header from "@/component/Header";
 import bg from "../assets/images/image.png";
-import Menu from "@/component/Menu";
-import produtos from "@/list/produtos";
 import ProductCard from "@/component/ProductCard";
 import ProductContainer from "@/component/ProductContainer";
 import Footer from "@/component/Footer";
 import Drawer from "@/component/Drawer";
-import React from "react";
+import React, { useEffect } from "react";
+import produtosList from "@/list/produtos";
+import ProductSection from "@/component/ProductSection";
+import ProductContent from "@/component/ProductContent";
+import { FaRegArrowAltCircleLeft } from "react-icons/fa";
 
 export default function Home() {
   const [visible, setVisible] = React.useState(false);
+  const [productSectionId, setProductSectionId] = React.useState<string | null>(
+    null
+  );
+  const handleSetProductSectionId = (id: number) => {
+    const idString = JSON.stringify(id);
+    localStorage.setItem("sectionProductId", idString);
+    setProductSectionId(idString); // Atualiza o estado IMEDIATAMENTE
+  };
+  const closeSetProductSectionId = () => {
+    localStorage.removeItem("sectionProductId");
+    setProductSectionId(null); // Atualiza o estado IMEDIATAMENTE
+  };
+
   return (
     <div
       className={`w-screen h-screen bg-cover bg-center bg-fixed overflow-x-hidden ${
@@ -19,29 +34,46 @@ export default function Home() {
       style={{ backgroundImage: `url(${bg.src})` }}
     >
       <Header />
-
-      <Menu />
-
-      <main className="bg-[rgba(255,255,255,0.8)] w-full p-8 ">
-        <div className="mt-4 ml-18 gap-4 flex flex-col">
-          <h2 className="text-5xl text-gray-900 font-semibold font-['Gravitas_One'] ">
-            Todos os calçados
+      <main className="bg-[rgba(255,0,242,0.28)] w-full p-8 ">
+        {productSectionId !== null && (
+          <FaRegArrowAltCircleLeft
+            className="text-white text-3xl"
+            onClick={() => closeSetProductSectionId()}
+          />
+        )}
+        <div className="mt-4 ml-20 gap-4 flex flex-col">
+          <h2 className="text-3xl text-gray-900 font-semibold font-['Gravitas_One'] ">
+            Produtos
           </h2>
-          <div className="bg-purple-950 rounded-4xl w-125 h-2"></div>
+          <div className="bg-purple-950 rounded-4xl w-60 h-1.5"></div>
         </div>
-        <ProductContainer>
-          {produtos.map((item) => (
-            <ProductCard
-              key={item.id}
-              id={item.id}
-              name={item.name}
-              description={item.description}
-              value={item.value}
-              photo={item.photo}
-            />
-          ))}
-        </ProductContainer>
+        {productSectionId ? (
+          <ProductContainer>
+            {produtosList.produtos.map((item) => (
+              <ProductCard
+                id={item.id}
+                name={item.name}
+                description={item.description}
+                value={item.value}
+                photo={item.photo}
+              />
+            ))}
+          </ProductContainer>
+        ) : (
+          <ProductContent>
+            {produtosList.secoes.map((item) => (
+              <ProductSection
+                name={item.name}
+                value={item.value}
+                id={item.id}
+                onSelect={handleSetProductSectionId}
+                isActive={productSectionId == JSON.stringify(item.id)}
+              />
+            ))}
+          </ProductContent>
+        )}
       </main>
+
       {visible && (
         <div className="fixed top-51 right-0 left-0 bottom-0 inset-0 bg-black/60 w-full h-full  opacity-100 z-10" />
       )}
