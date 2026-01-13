@@ -13,12 +13,14 @@ import { FaRegArrowAltCircleLeft } from "react-icons/fa";
 import ButtonBack from "@/component/ButtonBack";
 import Form from "@/component/Form";
 import { IoAdd } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [visible, setVisible] = React.useState(false);
   const [productSectionId, setProductSectionId] = React.useState<string | null>(
     null
   );
+  const router = useRouter()
 
   const handleSetProductSectionId = (id: number) => {
     const idString = JSON.stringify(id);
@@ -29,6 +31,14 @@ export default function Home() {
     localStorage.removeItem("sectionProductId");
     setProductSectionId(null); // Atualiza o estado IMEDIATAMENTE
   };
+
+  const handleCreateProductPage = () => {
+    if (productSectionId){
+      router.push("createProduct")
+    } else {
+    router.push("createSectionProduct")
+    }
+  }
 
   return (
     <div
@@ -82,7 +92,7 @@ export default function Home() {
       )}
       <button
         className="bg-purple-900 rounded-[50%] p-4 fixed w-16 h-16 bottom-4 right-4 flex items-center justify-center cursor-pointer hover:shadow-[0_0_15px_rgba(147,51,234,0.8)]"
-        onClick={() => setVisible(true)}
+        onClick={() => handleCreateProductPage()}
       >
         <IoAdd className="text-3xl text-amber-50" />
       </button>
