@@ -11,7 +11,6 @@ import ProductSection from "@/component/ProductSection";
 import ProductContent from "@/component/ProductContent";
 import { FaRegArrowAltCircleLeft } from "react-icons/fa";
 import ButtonBack from "@/component/ButtonBack";
-import Form from "@/component/Form";
 import { IoAdd } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 
@@ -20,7 +19,7 @@ export default function Home() {
   const [productSectionId, setProductSectionId] = React.useState<string | null>(
     null
   );
-  const router = useRouter()
+  const router = useRouter();
 
   const handleSetProductSectionId = (id: number) => {
     const idString = JSON.stringify(id);
@@ -33,12 +32,8 @@ export default function Home() {
   };
 
   const handleCreateProductPage = () => {
-    if (productSectionId){
-      router.push("createProduct")
-    } else {
-    router.push("createSectionProduct")
-    }
-  }
+      router.push("create");
+  };
 
   return (
     <div
@@ -49,8 +44,8 @@ export default function Home() {
     >
       <Header />
       <main className="bg-[rgba(255,0,242,0.28)] w-full p-8 backdrop-blur-[10px] ">
-        <div className="mt-4 ml-20 gap-4 flex flex-col">
-          <h2 className="text-3xl text-gray-900 font-semibold font-['Gravitas_One'] ">
+        <div className="mt-4 ml-20 max-md:ml-6 gap-4 flex flex-col">
+          <h2 className="text-3xl max-md:text-2xl text-gray-900 font-semibold font-['Gravitas_One'] ">
             Produtos
           </h2>
           <div className="bg-purple-950 rounded-4xl w-60 h-1.5"></div>
@@ -76,6 +71,7 @@ export default function Home() {
           <ProductContent>
             {produtosList.secoes.map((item) => (
               <ProductSection
+                key={item.id}
                 id={item.id}
                 name={item.name}
                 value={item.value}

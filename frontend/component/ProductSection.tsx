@@ -19,7 +19,7 @@ export default function ProductSection({
 }: ProductSectionProps) {
   return (
     <div
-      className="flex flex-row justify-between items-center p-4 bg-amber-50 rounded-xl w-[90%] h-30 border-l-8 border-l-purple-950 shadow-[1px_1px_8px_black] hover:transform hover:scale-[1.05] cursor-pointer duration-300 "
+      className="flex flex-row justify-between items-center p-4 bg-amber-50 rounded-xl w-[90%] max-md:w-full h-30 border-l-8 border-l-purple-950 shadow-[1px_1px_8px_black] hover:transform hover:scale-[1.05] cursor-pointer duration-300 "
       onClick={() => onSelect(id)}
     >
       <div className="flex flex-col">
