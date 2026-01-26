@@ -2,10 +2,10 @@
 import React from "react";
 import { FaClock, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 import { IoPersonCircleOutline } from "react-icons/io5";
-import Menu from "./Menu";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
-  const [menuVisible, setMenuVisible] = React.useState(false);
+  const router = useRouter();
 
   return (
     <header className="bg-pink-100 border-b-8 border-b-pink-900 max-h-50 w-full text-purple-900 py-4 gap-16 z-10 grid grid-cols-[2fr_1fr] items-center relative">
@@ -38,19 +38,13 @@ export default function Header() {
             </p>
           </div>
         </div>
-        <div
-          className=" cursor-pointer relative"
-          onClick={() => setMenuVisible(!menuVisible)}
-          onMouseEnter={() => setMenuVisible(true)}
-          onMouseLeave={() => setMenuVisible(false)}
+        <button
+          className="flex flex-row gap-2 border border-pink-300 rounded-4xl items-center h-12 w-auto p-4 font-bold bg-amber-50 hover:scale-105 hover:shadow-md transition-all duration-300 cursor-pointer"
+          onClick={() => router.push("/sign")}
         >
           <IoPersonCircleOutline className="text-4xl max-md:text-2xl" />
-        </div>
-        <Menu
-          visible={menuVisible}
-          onMouseEnter={() => setMenuVisible(true)}
-          onMouseLeave={() => setMenuVisible(false)}
-        />
+          <p>Entrar</p>
+        </button>
       </div>
     </header>
   );
