@@ -23,9 +23,9 @@ export default function ProductCard({
           {Array.from({ length: 5 }, (_, i) => {
             i++;
             return i <= rating ? (
-              <FaStar className="text-yellow-500 text-xl" />
+              <FaStar className="text-yellow-500 text-xl" key={i} />
             ) : (
-              <FaStar className="text-gray-500 text-xl" />
+              <FaStar className="text-gray-500 text-xl" key={i} />
             );
           })}
         </>
@@ -40,17 +40,19 @@ export default function ProductCard({
           alt={name}
           className="w-full h-full object-center object-cover relative"
         />
-        <div className="absolute bottom-0 left-0 bg-linear-to-r from-purple-600 to-pink-500 m-4 rounded-3xl w-28 h-8 flex items-center justify-center text-amber-50 font-['Lexend_Deca','sans_serif'] font-bold">
+        <div className="absolute bottom-0 left-0 bg-linear-to-r from-purple-600 to-pink-500 m-4 rounded-3xl w-28 h-8 flex items-center justify-center text-amber-50 font-['Poppins'] font-bold">
           R$ {price.toFixed(2)}
         </div>
       </div>
       <div className="w-80 h-25 flex flex-col justify-center p-4 gap-4">
-        <h3 className="text-lg font-semibold text-gray-800 truncate font-['Lexend_Deca','sans_serif']">
+        <h3 className="text-xl font-semibold text-gray-800 truncate font-['Poppins']">
           {name}
         </h3>
         <div className="flex flex-row items-center justify-between">
           <div className="flex gap-2">{handleAvaliation(rating)}</div>
-          <p className="text-gray-800 text-xl font-semibold">{rating.toFixed(1)}</p>
+          <p className="text-gray-800 text-xl font-semibold">
+            {rating.toFixed(1)}
+          </p>
         </div>
       </div>
     </div>
