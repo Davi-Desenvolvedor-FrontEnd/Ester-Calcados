@@ -1,12 +1,12 @@
 import React from "react";
 
-type Props = {
+interface Props extends React.HTMLAttributes<HTMLDivElement>  {
   children?: React.ReactNode;
 };
 
-export default function ProductContainer({ children }: Props) {
+export default function ProductContainer({ children, ...rest }: Props) {
   return (
-    <div className="flex flex-wrap gap-4 p-8 justify-center mt-16">
+    <div {...rest} >
       {children}
     </div>
   );

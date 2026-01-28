@@ -2,7 +2,7 @@ import { FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="min-h-44 w-full overflow-hidden bg-pink-900 flex flex-col">
+    <footer className="min-h-44 w-full overflow-hidden bg-pink-900 flex flex-col bottom-0 z-50">
       <div className="self-center justify-center text-amber-50 flex flex-row max-md:flex-col gap-18 max-md:gap-2">
         <div className="p-4 w-1/4 max-md:w-full  font-['Times_New_Roman']">
           <h4 className="font-['Cookie'] text-3xl max-md:text-xl font-medium">
