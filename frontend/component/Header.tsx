@@ -17,7 +17,7 @@ export default function Header() {
           Fabricando os melhores calçados femininos desde 2006
         </p>
       </div>
-      <div className="flex flex-row  justify-end gap-4 pr-8 relative ">
+      <div className="flex flex-row justify-end gap-4 pr-8 relative ">
         <div className=" flex flex-col gap-4 items-start max-md:hidden ">
           <div className="flex flex-row gap-2 items-center">
             <FaPhoneAlt />
@@ -39,10 +39,9 @@ export default function Header() {
           </div>
         </div>
         <button
-          className="flex flex-row gap-2 border border-pink-300 rounded-4xl items-center h-12 w-auto p-4 font-bold bg-amber-50 hover:scale-105 hover:shadow-md transition-all duration-300 cursor-pointer"
+          className="self-start border-0 rounded-[10px] items-center px-4 py-2 font-bold bg-linear-240 from-purple-500 to-purple-700 hover:scale-105 hover:shadow-md transition-all duration-300 cursor-pointer text-amber-50 font-['DM_Sans'_'sans_serif']"
           onClick={() => router.push("/sign")}
         >
-          <IoPersonCircleOutline className="text-4xl max-md:text-2xl" />
           <p>Entrar</p>
         </button>
       </div>
