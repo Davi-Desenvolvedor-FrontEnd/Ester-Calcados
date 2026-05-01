@@ -9,12 +9,13 @@ import React, { useEffect, useState } from "react";
 import produtosList from "@/list/produtos";
 import ProductSection from "@/component/ProductSection";
 import ProductContent from "@/component/ProductContent";
-import { FaRegArrowAltCircleLeft } from "react-icons/fa";
 import ButtonBack from "@/component/ButtonBack";
+import { FaFilter } from "react-icons/fa6";
 import { IoAdd } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { ImEmbed } from "react-icons/im";
 import { IoMdMenu } from "react-icons/io";
+import { CiFilter } from "react-icons/ci";
 
 export default function Home() {
   const [visible, setVisible] = React.useState(false);
@@ -57,10 +58,9 @@ export default function Home() {
         <div
           className={`${menuFilter ? "w-1/4" : "w-16"} bg-amber-50 relative shrink-0 p-4 z-0 flex flex-col shadow-[1px_0_4px_black] ease-in-out transition-all duration-300`}
         >
-          <IoMdMenu
-            onClick={() => setMenuFilter(!menuFilter)}
-            className="text-2xl"
-          />
+          <div className="flex ml-8 text-purple-800">
+<FaFilter className="text-2xl shrink-0" />            <p>Filtros</p>
+          </div>
           <div
             className={`flex flex-col w-full p-4 gap-4 h-full transition-all duration-100 ease-in-out ${menuFilter ? "opacity-100 visible" : "opacity-0 invisible w-0 p-0"}`}
           >
@@ -101,8 +101,10 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className={`flex flex-col transition-all duration-300 ease-in-out
-${menuFilter ? "w-3/4" : "w-[90%] "}`}>
+        <div
+          className={`flex flex-col transition-all duration-300 ease-in-out
+${menuFilter ? "w-3/4" : "w-[90%] "}`}
+        >
           <menu className="flex w-full min-h-24 gap-2 flex-col items-center font-['DM_Sans'_'sans_serif']">
             <nav className="p-4 gap-4 flex flex-row justify-around w-4/5 font-bold font-['DM_Sans'] text-2xl text-gray-800">
               {sections.map((item) => (
