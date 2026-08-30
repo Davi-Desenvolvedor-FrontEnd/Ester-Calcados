@@ -51,9 +51,7 @@ const UserModel = {
       return {
         success: true,
         message: "Usuário logado com sucesso",
-        data: {
-          user,
-        },
+        data: user
       };
     } catch (error) {
       console.log(error);

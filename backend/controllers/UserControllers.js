@@ -1,51 +1,6 @@
 import UserModel from "../models/UserModels.js";
 
 const UserController = {
-  login: async (req, res) => {
-    try {
-      const data = req.body;
-      const result = await UserModel.login(data);
-
-      if (!result) {
-        return res.status(500).json({
-          success: false,
-          message: "Erro interno do servidor",
-          errors: ["Não foi possível processar a requisição"],
-        });
-      }
-
-      if (result.success) {
-        return res.status(200).json({
-          success: true,
-          message: result.message,
-          data: result.data,
-        });
-      }
-
-      let statusCode = 400;
-      if (
-        result.message.includes("Usuário não encontrado") ||
-        result.message.includes("Credenciais inválidas")
-      ) {
-        statusCode = 401;
-      } else if (result.message.includes("interno")) {
-        statusCode = 500;
-      }
-
-      return res.status(statusCode).json({
-        success: false,
-        message: result.message,
-        errors: result.errors || [result.message],
-      });
-    } catch (error) {
-      console.error("Erro:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Erro interno do servidor",
-        errors: ["Ocorreu um erro inesperado. Tente novamente mais tarde."],
-      });
-    }
-  },
   create: async (req, res) => {
     try {
       const data = req.body;

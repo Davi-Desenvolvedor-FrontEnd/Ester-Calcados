@@ -1,7 +1,6 @@
 import ProdutoModel from "../models/ProdutoModels.js";
 import * as ImageService from "../services/ImageService.js";
 
-
 const ProdutoController = {
   create: async (req, res) => {
     try {
@@ -13,38 +12,12 @@ const ProdutoController = {
         });
       }
 
-      let imageUrl = "";
-      try {
-        if (
-          ImageService &&
-          typeof ImageService.processarImagem === "function"
-        ) {
-          const processed = await ImageService.processarImagem(
-            req.file.buffer,
-            req.body.desconto,
-            req.body.nome
-          );
-          imageUrl = processed.url;
-        } else {
-          imageUrl = `/uploads/${req.file.originalname}`;
-        }
-      } catch (imageError) {
-        console.error("Erro ao processar imagem:", imageError.message);
-      }
-
-      if (!imageUrl) {
-        res.status(500).json({
-          success: false,
-          message: "Erro interno no servidor"
-        })
-      }
-
       const preco = parseFloat(req.body.preco);
       const estoque = parseInt(req.body.estoque);
       const categoria_id = req.body.categoria_id
         ? parseInt(req.body.categoria_id)
         : null;
-      const desconto = parseInt(req.body.desconto)
+      const desconto = parseInt(req.body.desconto);
 
       if (isNaN(preco) || preco < 0) {
         return res.status(400).json({
@@ -62,6 +35,30 @@ const ProdutoController = {
         });
       }
 
+      let imagemProcessada = null;
+      let imageUrl = "";
+
+      try {
+        if (
+          ImageService &&
+          typeof ImageService.processarImagem === "function"
+        ) {
+          imagemProcessada = await ImageService.processarImagem(
+            req.file.buffer,
+            req.body.desconto || 0,
+            req.body.nome,
+          );
+          imageUrl = imagemProcessada.imagemUrl;
+        }
+      } catch (imageError) {
+        console.error("Erro ao processar imagem:", imageError.message);
+        return res.status(500).json({
+          success: false,
+          message: "Erro ao processar imagem",
+          errors: ["Não foi possível processar a imagem"],
+        });
+      }
+
       const data = {
         nome: req.body.nome,
         preco: preco,
@@ -70,8 +67,7 @@ const ProdutoController = {
         url: imageUrl,
         desconto: desconto,
         categoria_id: categoria_id,
-        destaque:
-          req.body.destaque === "true" || req.body.destaque === true,
+        destaque: req.body.destaque === "true" || req.body.destaque === true,
       };
 
       const result = await ProdutoModel.create(data);
@@ -93,9 +89,24 @@ const ProdutoController = {
         });
       }
 
+      if (imagemProcessada && imagemProcessada.imagemBuffer) {
+        const pastaPublic = path.join(__dirname, "..", "public");
+
+        if (!fs.existsSync(pastaPublic)) {
+          fs.mkdirSync(pastaPublic, { recursive: true });
+        }
+
+        const caminhoSalvar = path.join(
+          pastaPublic,
+          imagemProcessada.nomeArquivo,
+        );
+
+        fs.writeFileSync(caminhoSalvar, imagemProcessada.imagemBuffer);
+      }
+
       return res.status(201).json({
         success: true,
-        message: result.message,
+        message: "Produto criado com sucesso",
         data: result.data,
       });
     } catch (error) {
