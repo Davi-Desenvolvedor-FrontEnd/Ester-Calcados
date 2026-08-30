@@ -47,13 +47,14 @@ CREATE TABLE `produtos` (
   `descricao` text,
   `estoque` int NOT NULL DEFAULT '0',
   `imagem_url` varchar(255) NOT NULL,
-  `texto_marca` varchar(100) DEFAULT 'LOJA OFICIAL',
+  `desconto` int DEFAULT NULL,
   `categoria_id` int DEFAULT NULL,
   `destaque` tinyint(1) DEFAULT '0',
   `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `atualizado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`),
+  CONSTRAINT `produtos_chk_1` CHECK ((`desconto` between 0 and 100))
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -83,4 +84,4 @@ CREATE TABLE `usuarios` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-29 17:14:15
+-- Dump completed on 2026-08-30 12:11:23
