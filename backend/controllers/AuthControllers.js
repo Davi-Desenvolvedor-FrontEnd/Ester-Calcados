@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import UserModel from "../models/UserModels.js";
 
 const AuthController = {
@@ -30,7 +29,7 @@ const AuthController = {
           cargo: usuario.cargo,
         },
         process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN || "24h" },
+        { expiresIn: process.env.JWT_EXPIRES_IN },
       );
 
       const usuarioSemSenha = {
@@ -45,7 +44,7 @@ const AuthController = {
         message: "Login realizado com sucesso",
         token,
         usuario: usuarioSemSenha,
-        expiresIn: "24h",
+        expiresIn: process.env.JWT_EXPIRES_IN,
       });
     } catch (error) {
       console.error("Erro no login:", error);
