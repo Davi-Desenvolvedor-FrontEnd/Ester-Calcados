@@ -68,6 +68,7 @@ const ProdutoController = {
         desconto: desconto,
         categoria_id: categoria_id,
         destaque: req.body.destaque === "true" || req.body.destaque === true,
+        tamanhos: req.body.tamanhos
       };
 
       const result = await ProdutoModel.create(data);
@@ -257,6 +258,7 @@ const ProdutoController = {
         categoria_id: data.categoria_id
           ? parseInt(data.categoria_id)
           : undefined,
+        tamanhos: req.body.tamanhos
       };
 
       const result = await ProdutoModel.update(id, updateData);

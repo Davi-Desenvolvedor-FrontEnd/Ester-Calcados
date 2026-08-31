@@ -1,8 +1,8 @@
-import Header from "./components/Header.tsx";
+import Footer from "./components/Footer.tsx";
 import Menu from "./components/Menu.tsx";
 import ProductCard from "./components/ProductCard.tsx";
 import ProductContainer from "./components/ProductContainer.tsx";
-import SideBar from "./components/SideBar";
+import SideBar from "./components/SideBar.tsx";
 
 export default function App() {
   const produtos = [
@@ -294,7 +294,6 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <Header />
       <main className="flex">
         <SideBar />
         <div className="flex flex-col w-full gap-8">
@@ -317,6 +316,7 @@ export default function App() {
           </ProductContainer>
         </div>
       </main>
+      <Footer/>
     </div>
   );
 }

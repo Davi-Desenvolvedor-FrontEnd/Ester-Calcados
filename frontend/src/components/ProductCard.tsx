@@ -40,7 +40,7 @@ export default function ProductCard({
   };
 
   return (
-    <div className="produto-card rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative border border-gray-100/80 font-['Poppins',sans-serif] w-[330px]">
+    <div className="produto-card rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative border border-gray-100/80 font-['Poppins',sans-serif] w-full">
       {/* Botão de Favoritar (Coração) */}
       <button
         type="button"
@@ -93,7 +93,7 @@ export default function ProductCard({
         {/* Botão Comprar via WhatsApp */}
         <button
           type="button"
-          className="w-full py-2 bg-[#8b46cd] hover:bg-[#7a3bb8] active:bg-[#6931a2] text-white font-medium text-[13px] rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+          className="w-full h-10 bg-[#8b46cd] hover:bg-[#7a3bb8] active:bg-[#6931a2] text-white font-medium text-[13px] rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
         >
           <FaWhatsapp className="text-xl" />
           <span>Comprar</span>

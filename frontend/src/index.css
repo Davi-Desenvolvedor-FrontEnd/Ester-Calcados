@@ -1,6 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Betania+Patmos&family=Cookie&family=Dancing+Script:wght@400..700&family=Great+Vibes&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --primary: #fb6f92;
+  --secondary: #3c096c;
+  --text: #2c2c2c;
+  --background: #dcdddd;
+  --surface: #eee;
+}
+
 :root {
   --primary: #fb6f92;
   --secondary: #3c096c;
@@ -16,8 +24,7 @@ body {
   overflow-x: hidden;
 }
 
-h2,
-p, label, h3 {
+h2, label, h3 {
   color: var(--text);
 }
 
@@ -51,10 +58,12 @@ p, label, h3 {
 }
 
 .side-bar {
-  width: 500px;
   background-color: var(--surface);
-  border-radius: 12px;
-  box-shadow: 1px 1px 4px #0000002c;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2em;
+  width: 250px;
 }
 
 .filter-toggle {
@@ -63,7 +72,6 @@ p, label, h3 {
   gap: 0.5rem;
   font-size: 1.3rem;
   color: var(--secondary);
-  padding: 0.75rem 1.5rem;
   font-weight: 500;
   font-family: "Poppins", sans-serif;
 }
@@ -73,17 +81,19 @@ p, label, h3 {
 }
 
 .filters-content {
-  padding: 1em 2em;
   font-weight: 600;
-  font-size: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1em;
+  align-items: flex-start;
+  gap: 2em;
+  width: 100%;
 
   .filter-box {
+    width: 100%;
     gap: 1em;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
   }
 }
 

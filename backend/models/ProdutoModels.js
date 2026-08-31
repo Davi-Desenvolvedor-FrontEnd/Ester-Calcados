@@ -12,6 +12,7 @@ const ProdutoModel = {
         desconto,
         categoria_id,
         destaque,
+        tamanhos
       } = data;
 
       const errors = [];
@@ -29,6 +30,9 @@ const ProdutoModel = {
       if (!url) {
         errors.push("URL da imagem é obrigatória");
       }
+      if (!tamanhos) {
+        errors.push("Informe os tamanhos disponíveis");
+      }
 
       if (errors.length > 0) {
         return {
@@ -39,8 +43,8 @@ const ProdutoModel = {
       }
 
       const [result] = await pool.query(
-        `INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, desconto, categoria_id, destaque)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, desconto, categoria_id, destaque, tamanhos)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           nome,
           descricao,
@@ -50,6 +54,7 @@ const ProdutoModel = {
           desconto,
           categoria_id,
           destaque,
+          tamanhos
         ],
       );
 
@@ -66,6 +71,7 @@ const ProdutoModel = {
           desconto: desconto,
           categoria_id: categoria_id,
           destaque: destaque,
+          tamanhos: tamanhos
         },
       };
     } catch (error) {
@@ -134,6 +140,7 @@ const ProdutoModel = {
         desconto,
         destaque,
         categoria_id,
+        tamanhos
       } = data;
 
       const produtoExistente = await ProdutoModel.getOne(id);
@@ -172,7 +179,7 @@ const ProdutoModel = {
       await pool.query(
         `UPDATE produtos
          SET nome = ?, descricao = ?, preco = ?, estoque = ?,
-             imagem_url = ?, desconto = ?, destaque = ?, categoria_id = ?
+             imagem_url = ?, desconto = ?, destaque = ?, categoria_id = ?, tamanhos = ?
          WHERE id = ?`,
         [
           nome,
@@ -183,6 +190,7 @@ const ProdutoModel = {
           desconto,
           destaque,
           categoria_id,
+          tamanhos,
           id,
         ],
       );

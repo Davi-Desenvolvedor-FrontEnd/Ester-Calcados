@@ -1,5 +1,5 @@
-import { useState } from "react";
-import DoubleSlider from "../DoubleSlider";
+import { useEffect, useState } from "react";
+import DoubleSlider from "./DoubleSlider";
 
 interface PriceRange {
   min: number;
@@ -26,6 +26,36 @@ export default function SideBar() {
     { id: 3, label: "Bolsas" },
   ];
 
+  const getAllSelectedCategories = (): number[] =>
+    categorias.map((categoria) => categoria.id);
+
+  const [selectedCategories, setSelectedCategories] = useState<number[]>(
+    getAllSelectedCategories,
+  );
+
+  const toggleCategory = (categoryId: number): void => {
+    setSelectedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId],
+    );
+  };
+
+  const [resetKey, setResetKey] = useState(0);
+
+  const clearFilters = () => {
+    setSelectedCategories(getAllSelectedCategories());
+    setPriceRange({ min: minPrice, max: maxPrice });
+    setResetKey((prev) => prev + 1);
+  };
+
+  const filtrarPorCategoria = (dados: any[]) => {
+    if (selectedCategories.length === 0) return dados;
+    return dados.filter((item) =>
+      selectedCategories.includes(item.categoriaId),
+    );
+  };
+
   return (
     <aside className="side-bar">
       <div className="filter-toggle">
@@ -34,8 +64,9 @@ export default function SideBar() {
       </div>
       <div className="filters-content">
         <div className="filter-box">
-          <p>Faixa de Preço</p>
+          <p className="text-(--text)">Faixa de Preço</p>
           <DoubleSlider
+            key={resetKey}
             min={Math.floor(minPrice)}
             max={Math.ceil(maxPrice)}
             step={1}
@@ -45,7 +76,7 @@ export default function SideBar() {
           />
         </div>
         <div className="filter-box">
-          <p>Categorias</p>
+          <p className="text-(--text)">Categorias</p>
           <div className="flex flex-col gap-1">
             {categorias.map((item) => (
               <label
@@ -57,9 +88,10 @@ export default function SideBar() {
                   <input
                     type="checkbox"
                     id={String(item.id)}
+                    checked={selectedCategories.includes(item.id)}
+                    onChange={() => toggleCategory(item.id)}
                     className="peer appearance-none w-4 h-4 rounded-sm border-2 border-gray-300 cursor-pointer transition-all duration-200 checked:bg-purple-600 checked:border-purple-600 hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   />
-                  {/* Ícone de check - aparece quando o checkbox está marcado */}
                   <svg
                     className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity duration-200"
                     fill="none"
@@ -81,6 +113,12 @@ export default function SideBar() {
               </label>
             ))}
           </div>
+          <button
+            onClick={clearFilters}
+            className="mt-4 text-sm cursor-pointer text-purple-600 hover:text-purple-800"
+          >
+            Limpar filtros
+          </button>
         </div>
       </div>
     </aside>

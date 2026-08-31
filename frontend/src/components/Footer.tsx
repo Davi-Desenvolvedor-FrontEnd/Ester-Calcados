@@ -9,7 +9,7 @@ export default function Footer() {
             Ester Calçados
           </h4>
           <div className="bg-amber-200 w-full rounded-4xl h-0.5 my-3"></div>
-          <p className="text-[0.7em] max-md:text-[0.5em]">
+          <p className="text-[0.7em] text-amber-50 max-md:text-[0.5em]">
             Fundada em 2006, a Ester Calçados construiu sua trajetória com base
             na qualidade e no atendimento personalizado. Há mais de 15 anos no
             mercado, a loja se tornou referência em conforto e estilo,

@@ -5,7 +5,7 @@ export default function Header() {
   // const router = useRouter();
 
   return (
-    <header className="max-h-50 w-full py-4 gap-16 z-10 grid grid-cols-[2fr_1fr] justify-between  text-amber-50">
+    <header className="max-h-50 w-full py-4 gap-16 z-10 grid grid-cols-[2fr_1fr] justify-between  text-amber-50 bg-amber-50">
       <div className="max-md:pl-2">
         <h1 className="text-9xl max-md:text-4xl font-medium font-dancing">
           Ester Calçados
