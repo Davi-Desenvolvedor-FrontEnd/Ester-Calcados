@@ -1,8 +1,9 @@
-import Footer from "./components/Footer.tsx";
-import Menu from "./components/Menu.tsx";
-import ProductCard from "./components/ProductCard.tsx";
-import ProductContainer from "./components/ProductContainer.tsx";
-import SideBar from "./components/SideBar.tsx";
+import { useState } from "react";
+import Footer from "../components/Footer.tsx";
+import Menu from "../components/Menu.tsx";
+import ProductCard from "../components/ProductCard.tsx";
+import ProductContainer from "../components/ProductContainer.tsx";
+import SideBar from "../components/SideBar.tsx";
 
 export default function App() {
   const produtos = [
@@ -291,16 +292,44 @@ export default function App() {
         "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500&h=500&fit=crop",
     },
   ];
-
+  const [sideBarVisible, setSideBarVisible] = useState(false);
+  const closeSideBar = () => setSideBarVisible(false);
+  const toggleSideBar = () => setSideBarVisible((prev) => !prev);
   return (
-    <div className="app-container">
-      <main className="flex">
-        <SideBar />
-        <div className="flex flex-col w-full gap-8">
-          <Menu />
+    <div className="app-container bg-amber-50 min-h-screen flex flex-col">
+      <main className="flex w-full flex-1 overflow-hidden relative">
+        {/* Overlay para mobile */}
+        {sideBarVisible && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            onClick={closeSideBar}
+          />
+        )}
+
+        {/* SideBar */}
+        <SideBar
+          isOpen={sideBarVisible}
+          onClose={closeSideBar} // nova prop para fechar no mobile
+          className={`
+            transition-all duration-500 ease-in-out
+            fixed z-50 lg:z-auto lg:relative
+            top-0 left-0 h-full shadow-xl
+            ${
+              sideBarVisible
+                ? "w-64 translate-x-0 opacity-100 pointer-events-auto"
+                : "w-0 -translate-x-full opacity-0 pointer-events-none"
+            }
+            w-64 lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto
+          `}
+        />
+
+        {/* Conteúdo principal */}
+        <div className="flex flex-col flex-1 gap-8 overflow-y-auto">
+          <Menu onToggleSideBar={toggleSideBar} />
           <ProductContainer>
             {produtos.map((item) => (
               <ProductCard
+                key={item.id}
                 id={item.id}
                 name={item.nome}
                 description={item.descricao}
@@ -316,7 +345,7 @@ export default function App() {
           </ProductContainer>
         </div>
       </main>
-      <Footer/>
+      <Footer />
     </div>
   );
 }

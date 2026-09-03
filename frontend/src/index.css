@@ -6,7 +6,19 @@
   --secondary: #3c096c;
   --text: #2c2c2c;
   --background: #dcdddd;
-  --surface: #eee;
+  --surface: #ffe5ec;
+}
+
+@layer utilities {
+  /* Ocultar barra de rolagem para Chrome, Safari e Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Ocultar barra de rolagem para IE, Edge e Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE e Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
 }
 
 :root {
@@ -14,7 +26,7 @@
   --secondary: #3c096c;
   --text: #2c2c2c;
   --background: #dcdddd;
-  --surface: #eee;
+  --surface: #ffe5ec;
 }
 
 body {
@@ -28,6 +40,15 @@ h2, label, h3 {
   color: var(--text);
 }
 
+label.label-sign {
+  color: var(--primary);
+  font-size: 1em;
+  font-weight: 600;
+}
+
+button[type="submit"] {
+  background-color: var(--secondary);
+}
 
 .font-dancing {
   font-family: "Dancing Script", sans-serif;
@@ -50,7 +71,6 @@ h2, label, h3 {
 .app-container {
   display: flex;
   flex-direction: column;
-  background-color: var(--surface);
   font-family: "Poppins", sans-serif;
   border-radius: 12px;
   height: 100%;
@@ -63,7 +83,6 @@ h2, label, h3 {
   flex-direction: column;
   align-items: stretch;
   gap: 2em;
-  width: 250px;
 }
 
 .filter-toggle {

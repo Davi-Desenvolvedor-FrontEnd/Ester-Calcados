@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import DoubleSlider from "./DoubleSlider";
 
 interface PriceRange {
@@ -6,16 +6,25 @@ interface PriceRange {
   max: number;
 }
 
-export default function SideBar() {
+interface SideBarProps extends React.HTMLAttributes<HTMLDivElement> {
+  isOpen?: boolean;
+  onClose?: () => void; // para fechar no mobile
+}
+
+export default function SideBar({
+  isOpen,
+  onClose,
+  className,
+  ...props
+}: SideBarProps) {
   const [priceRange, setPriceRange] = useState<PriceRange>({
     min: 0,
     max: 1000,
   });
-
   const minPrice = 0;
   const maxPrice = 1000;
 
-  const handlePriceChange = ({ min, max }: PriceRange): void => {
+  const handlePriceChange = ({ min, max }: PriceRange) => {
     setPriceRange({ min, max });
     console.log("Preço selecionado:", { min, max });
   };
@@ -26,14 +35,11 @@ export default function SideBar() {
     { id: 3, label: "Bolsas" },
   ];
 
-  const getAllSelectedCategories = (): number[] =>
-    categorias.map((categoria) => categoria.id);
-
   const [selectedCategories, setSelectedCategories] = useState<number[]>(
-    getAllSelectedCategories,
+    categorias.map((c) => c.id),
   );
 
-  const toggleCategory = (categoryId: number): void => {
+  const toggleCategory = (categoryId: number) => {
     setSelectedCategories((prev) =>
       prev.includes(categoryId)
         ? prev.filter((id) => id !== categoryId)
@@ -44,27 +50,43 @@ export default function SideBar() {
   const [resetKey, setResetKey] = useState(0);
 
   const clearFilters = () => {
-    setSelectedCategories(getAllSelectedCategories());
+    setSelectedCategories(categorias.map((c) => c.id));
     setPriceRange({ min: minPrice, max: maxPrice });
     setResetKey((prev) => prev + 1);
   };
 
-  const filtrarPorCategoria = (dados: any[]) => {
-    if (selectedCategories.length === 0) return dados;
-    return dados.filter((item) =>
-      selectedCategories.includes(item.categoriaId),
-    );
-  };
-
   return (
-    <aside className="side-bar">
-      <div className="filter-toggle">
-        <i className="fa-solid fa-sliders"></i>
-        <span>Filtros</span>
+    <aside className={`side-bar ${className}`} {...props}>
+      {/* Cabeçalho com título e botão fechar (mobile) */}
+      <div className="flex items-center lg:bg-(--surface) justify-end md:justify-start p-4 border-b border-gray-200 rounded-xl">
+        <div className="md:flex hidden items-center gap-2">
+          <i className="fa-solid fa-sliders text-(--secondary) text-2xl"></i>
+          <h2 className="text-(--secondary) text-2xl">Filtros</h2>
+        </div>
+        <button
+          onClick={onClose}
+          className="lg:hidden flex self-end p-1 bg-(--surface) rounded-full hover:bg-gray-100 transition-colors"
+          aria-label="Fechar filtros"
+        >
+          <svg
+            className="w-6 h-6 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
       </div>
-      <div className="filters-content">
-        <div className="filter-box">
-          <p className="text-(--text)">Faixa de Preço</p>
+
+      <div className="filters-content p-4 overflow-y-auto flex-1">
+        <div className="filter-box mb-6">
+          <p className="text-gray-700 mb-2">Faixa de Preço</p>
           <DoubleSlider
             key={resetKey}
             min={Math.floor(minPrice)}
@@ -75,14 +97,15 @@ export default function SideBar() {
             onPriceChange={handlePriceChange}
           />
         </div>
+
         <div className="filter-box">
-          <p className="text-(--text)">Categorias</p>
+          <p className="text-gray-700 mb-2">Categorias</p>
           <div className="flex flex-col gap-1">
             {categorias.map((item) => (
               <label
                 key={item.id}
                 htmlFor={String(item.id)}
-                className="flex items-center gap-4 p-3 rounded-xl duration-200 cursor-pointer border-2 border-transparent group"
+                className="flex items-center gap-4 p-3 rounded-xl duration-200 cursor-pointer border-2 border-transparent group hover:border-purple-200"
               >
                 <div className="relative flex items-center justify-center">
                   <input
@@ -106,7 +129,6 @@ export default function SideBar() {
                     />
                   </svg>
                 </div>
-
                 <span className="font-normal text-[16px] transition-colors group-hover:text-purple-600">
                   {item.label}
                 </span>
@@ -115,7 +137,7 @@ export default function SideBar() {
           </div>
           <button
             onClick={clearFilters}
-            className="mt-4 text-sm cursor-pointer text-purple-600 hover:text-purple-800"
+            className="mt-4 text-sm cursor-pointer text-purple-600 hover:text-purple-800 font-medium"
           >
             Limpar filtros
           </button>
