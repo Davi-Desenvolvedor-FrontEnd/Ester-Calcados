@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../components/Footer.tsx";
 import Menu from "../components/Menu.tsx";
 import ProductCard from "../components/ProductCard.tsx";
@@ -295,6 +295,21 @@ export default function App() {
   const [sideBarVisible, setSideBarVisible] = useState(false);
   const closeSideBar = () => setSideBarVisible(false);
   const toggleSideBar = () => setSideBarVisible((prev) => !prev);
+  const [produtosLista, setProdutosLista] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const response = await fetch("http://localhost:3000/produtos", {
+        method: "GET",
+      });
+      if (!response.ok) {
+        throw new Error(`Erro no servidor: ${response.status}`);
+      }
+
+      const dados = await response.json();
+
+      setProdutosLista(dados.data);
+    })();
+  }, []);
   return (
     <div className="app-container bg-amber-50 min-h-screen flex flex-col">
       <main className="flex w-full flex-1 overflow-hidden relative">
@@ -327,21 +342,24 @@ export default function App() {
         <div className="flex flex-col flex-1 gap-8 overflow-y-auto">
           <Menu onToggleSideBar={toggleSideBar} />
           <ProductContainer>
-            {produtos.map((item) => (
-              <ProductCard
-                key={item.id}
-                id={item.id}
-                name={item.nome}
-                description={item.descricao}
-                destaque={item.destaque}
-                estoque={item.estoque}
-                photo={item.imagem}
-                price={item.preco}
-                rating={item.avaliacao_media}
-                nRating={item.avaliacao_total}
-                desconto={item.desconto}
-              />
-            ))}
+            {produtosLista.map((item) => {
+              console.log(item.imagem_url)
+              return (
+                <ProductCard
+                  key={item.id}
+                  id={item.id}
+                  name={item.nome}
+                  description={item.descricao}
+                  destaque={item.destaque}
+                  estoque={item.estoque}
+                  photo={`http://localhost:3000/imagens/${item.imagem_url}`}
+                  price={item.preco}
+                  rating={item.avaliacao_media}
+                  nRating={item.avaliacao_total}
+                  desconto={item.desconto}
+                />
+              );
+            })}
           </ProductContainer>
         </div>
       </main>

@@ -1,6 +1,5 @@
 import sharp from "sharp";
 import path from "path";
-import fs from "fs";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,8 +12,8 @@ export async function processarImagem(
 ) {
   try {
     const nomeArquivo = `produto_${Date.now()}.jpg`;
-    const largura = 800;
-    const altura = 800;
+    const largura = 400;
+    const altura = 400;
     const corDestaque = "#9E005D";
     const white = "#fff";
 
@@ -55,7 +54,7 @@ export async function processarImagem(
     return {
       nomeArquivo,
       imagemBuffer: imagemProcessada, 
-      imagemUrl: `/${nomeArquivo}`, 
+      imagemUrl: `/imagens/${nomeArquivo}`, 
     };
   } catch (error) {
     throw new Error(`Erro ao processar imagem: ${error.message}`);

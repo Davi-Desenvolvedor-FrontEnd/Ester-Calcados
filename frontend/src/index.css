@@ -191,5 +191,4 @@ main {
   background-color: var(--surface);
   box-shadow: 1px 1px 4px #00000013;
   overflow: hidden;
-  border-radius: 12px;
 }

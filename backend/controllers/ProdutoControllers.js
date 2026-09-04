@@ -1,5 +1,11 @@
+import { fileURLToPath } from "url";
 import ProdutoModel from "../models/ProdutoModels.js";
 import * as ImageService from "../services/ImageService.js";
+import path from "path";
+import fs from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const ProdutoController = {
   create: async (req, res) => {
@@ -43,12 +49,17 @@ const ProdutoController = {
           ImageService &&
           typeof ImageService.processarImagem === "function"
         ) {
+          // Gera um timestamp único para cada imagem
+          const timestamp = Date.now();
           imagemProcessada = await ImageService.processarImagem(
             req.file.buffer,
             req.body.desconto || 0,
             req.body.nome,
           );
-          imageUrl = imagemProcessada.imagemUrl;
+          // O timestamp já está sendo gerado dentro do service, mas vamos garantir
+          imageUrl = `/produto_${timestamp}.jpg`;
+          // Atualiza o nome do arquivo se necessário
+          imagemProcessada.nomeArquivo = `produto_${timestamp}.jpg`;
         }
       } catch (imageError) {
         console.error("Erro ao processar imagem:", imageError.message);
@@ -68,7 +79,7 @@ const ProdutoController = {
         desconto: desconto,
         categoria_id: categoria_id,
         destaque: req.body.destaque === "true" || req.body.destaque === true,
-        tamanhos: req.body.tamanhos
+        tamanhos: req.body.tamanhos,
       };
 
       const result = await ProdutoModel.create(data);
@@ -258,7 +269,7 @@ const ProdutoController = {
         categoria_id: data.categoria_id
           ? parseInt(data.categoria_id)
           : undefined,
-        tamanhos: req.body.tamanhos
+        tamanhos: req.body.tamanhos,
       };
 
       const result = await ProdutoModel.update(id, updateData);
