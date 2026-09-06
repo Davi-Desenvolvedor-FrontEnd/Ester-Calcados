@@ -5,6 +5,23 @@ import ProductCard from "../components/ProductCard.tsx";
 import ProductContainer from "../components/ProductContainer.tsx";
 import SideBar from "../components/SideBar.tsx";
 
+export interface Produto {
+  id: number;
+  nome: string;
+  preco: number;
+  descricao: string;
+  estoque: number;
+  imagem_url: string;
+  desconto: number;
+  avaliacao_media?: number;
+  avaliacao_total?: number;
+  categoria_id: number;
+  destaque: boolean;
+  criado_em?: Date;
+  atualizado_em?: Date;
+  tamanhos: string;
+}
+
 interface FilterState {
   priceRange: {
     min: number;
@@ -17,8 +34,8 @@ export default function App() {
   const [sideBarVisible, setSideBarVisible] = useState(false);
   const closeSideBar = () => setSideBarVisible(false);
   const toggleSideBar = () => setSideBarVisible((prev) => !prev);
-  const [produtosLista, setProdutosLista] = useState([]);
-  const [produtosFiltrados, setProdutosFiltrados] = useState([]);
+  const [produtosLista, setProdutosLista] = useState<Produto[]>([]);
+  const [produtosFiltrados, setProdutosFiltrados] = useState<Produto[]>([]);
 
   const [filtros, setFiltros] = useState<FilterState>({
     priceRange: { min: 0, max: 1000 },
@@ -67,7 +84,7 @@ export default function App() {
 
   return (
     <div className="app-container bg-amber-50 min-h-screen flex flex-col">
-      <main className="flex w-full flex-1 overflow-hidden relative">
+      <main className="flex w-full h-full overflow-hidden relative">
         {sideBarVisible && (
           <div
             className="fixed inset-0 z-40 bg-black/50 lg:hidden"
@@ -80,21 +97,21 @@ export default function App() {
           onFilterChange={handleFilterChange}
           initialFilters={filtros}
           className={`
-            transition-all duration-500 ease-in-out
-            fixed z-50 lg:z-auto lg:relative
-            top-0 left-0 h-full shadow-xl
-            ${
-              sideBarVisible
-                ? "w-64 translate-x-0 opacity-100 pointer-events-auto"
-                : "w-0 -translate-x-full opacity-0 pointer-events-none"
-            }
-            w-64 lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto
-          `}
+          transition-all duration-500 py-8 ease-in-out
+          fixed z-50 lg:z-auto lg:relative
+          top-0 left-0 h-full shadow-xl
+          ${
+            sideBarVisible
+              ? "w-64 translate-x-0 opacity-100 pointer-events-auto"
+              : "w-0 translate-x-full opacity-0 pointer-events-none"
+          }
+          lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto lg:w-64
+        `}
         />
         <div className="flex flex-col flex-1 gap-8 overflow-y-auto">
           <Menu onToggleSideBar={toggleSideBar} />
           <ProductContainer>
-            {produtosFiltrados.map((item) => (
+            {produtosFiltrados.map((item: Produto) => (
               <ProductCard
                 key={item.id}
                 id={item.id}
@@ -104,8 +121,8 @@ export default function App() {
                 estoque={item.estoque}
                 photo={`http://localhost:3000/imagens/${item.imagem_url}`}
                 price={item.preco}
-                rating={item.avaliacao_media}
-                nRating={item.avaliacao_total}
+                rating={item.avaliacao_media ?? 0}
+                nRating={item.avaliacao_total ?? 0}
                 desconto={item.desconto}
               />
             ))}

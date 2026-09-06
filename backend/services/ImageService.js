@@ -1,19 +1,10 @@
 import sharp from "sharp";
-import path from "path";
-import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-export async function processarImagem(
-  imagemBuffer,
-  desconto,
-  nomeProduto,
-) {
+export async function processarImagem(imagemBuffer, desconto, nomeProduto) {
   try {
     const nomeArquivo = `produto_${Date.now()}.jpg`;
-    const largura = 400;
-    const altura = 400;
+    const largura = 800;
+    const altura = 800;
     const corDestaque = "#9E005D";
     const white = "#fff";
 
@@ -28,11 +19,29 @@ export async function processarImagem(
           <text x="50" y="65" font-family="'Times New Roman', Georgia, serif" font-size="28" fill="${white}" font-weight="bold" text-anchor="middle">ESTILO</text>
           <text x="50" y="80" font-family="Arial, sans-serif" font-size="16" fill="${white}" letter-spacing="2" text-anchor="middle" font-weight="bold">BRASILEIRO</text>
         </g>
-        <g transform="translate(680, 120) rotate(45)">
-          <rect x="-200" y="-45" width="400" height="90" fill="${corDestaque}"/>
-          <text x="0" y="15" font-family="cursive" font-size="60" fill="${white}" font-weight="normal" text-anchor="middle">${desconto + "% OFF"}</text>
-        </g>
-        <text x="30" y="750" font-family="serif" font-size="40" fill="${corDestaque}" font-weight="bold" text-anchor="start">${nomeProduto}</text>
+        ${
+          desconto > 0 &&
+          ` <g transform="translate(680, 120) rotate(45)">
+              <rect
+                x="-200"
+                y="-45"
+                width="400"
+                height="90"
+                fill="${corDestaque}"
+              />
+              <text
+                x="0"
+                y="15"
+                font-family="cursive"
+                font-size="60"
+                fill="${white}"
+                font-weight="normal"
+                text-anchor="middle"
+              >
+                ${desconto + "% OFF"}
+              </text>
+            </g>`
+        }
       </svg>
     `;
 
@@ -49,12 +58,12 @@ export async function processarImagem(
         },
       ])
       .jpeg({ quality: 90 })
-      .toBuffer(); 
+      .toBuffer();
 
     return {
       nomeArquivo,
-      imagemBuffer: imagemProcessada, 
-      imagemUrl: `/imagens/${nomeArquivo}`, 
+      imagemBuffer: imagemProcessada,
+      imagemUrl: `/imagens/${nomeArquivo}`,
     };
   } catch (error) {
     throw new Error(`Erro ao processar imagem: ${error.message}`);

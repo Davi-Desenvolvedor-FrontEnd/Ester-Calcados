@@ -91,11 +91,11 @@ export default function SideBar({
   };
 
   return (
-    <aside className={`side-bar ${className}`} {...props}>
-      <div className="flex items-center lg:bg-(--surface) justify-end md:justify-start p-4 border-b border-gray-200 rounded-xl">
+    <aside className={`${className}`} {...props}>
+      <div className="flex items-center justify-end md:justify-start p-4 border-b border-gray-400 mx-2">
         <div className="md:flex hidden items-center gap-2">
           <i className="fa-solid fa-sliders text-(--secondary) text-2xl"></i>
-          <h2 className="text-(--secondary) text-2xl">Filtros</h2>
+          <p className="text-(--text) text-2xl">Filtros</p>
         </div>
         <button
           onClick={onClose}

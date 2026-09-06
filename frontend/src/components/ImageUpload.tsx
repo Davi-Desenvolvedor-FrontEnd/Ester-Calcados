@@ -1,23 +1,30 @@
 "use client";
-
 import { ImageIcon, Upload, X } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 
 interface ImageUploadProps {
   imageUrl: string;
   setImageUrl: (url: string) => void;
+  onFileSelect?: (file: File | null, previewUrl: string) => void; 
 }
 
 export default function ImageUpload({
   imageUrl,
   setImageUrl,
+  onFileSelect,
 }: ImageUploadProps) {
   const [imagePreview, setImagePreview] = useState<string>(imageUrl);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<
     "idle" | "uploading" | "success" | "error"
   >("idle");
+
+  useEffect(() => {
+    if (imageUrl !== imagePreview) {
+      setImagePreview(imageUrl);
+    }
+  }, [imageUrl]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -40,6 +47,10 @@ export default function ImageUpload({
       setImageUrl(url);
       setUploadStatus("idle");
 
+      if (onFileSelect) {
+        onFileSelect(file, url);
+      }
+
       console.log("Arquivo selecionado:", {
         nome: file.name,
         tamanho: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
@@ -47,7 +58,7 @@ export default function ImageUpload({
         urlPreview: url,
       });
     },
-    [setImageUrl],
+    [setImageUrl, onFileSelect],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -67,6 +78,10 @@ export default function ImageUpload({
     setImageUrl("");
     setUploadStatus("idle");
     setSelectedFile(null);
+    
+    if (onFileSelect) {
+      onFileSelect(null, "");
+    }
   };
 
   return (
@@ -120,17 +135,16 @@ export default function ImageUpload({
             <div className="flex justify-end">
               <button
                 onClick={removeImage}
-                className="flex items-center gap-1 px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
               >
-                <X size={16} />
-                Remover imagem
+                <X size={24} />
               </button>
             </div>
             <div className="relative w-full h-48 rounded-xl overflow-hidden bg-gray-100 shadow-inner">
               <img
                 src={imagePreview}
                 alt="Preview do produto"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
               />
             </div>
             {selectedFile && (
