@@ -83,8 +83,8 @@ export default function App() {
   };
 
   return (
-    <div className="app-container bg-amber-50 min-h-screen flex flex-col">
-      <main className="flex w-full h-full overflow-hidden relative">
+    <div className="h-screen w-screen bg-amber-50 min-h-screen flex flex-col">
+      <main className="flex">
         {sideBarVisible && (
           <div
             className="fixed inset-0 z-40 bg-black/50 lg:hidden"
@@ -97,9 +97,9 @@ export default function App() {
           onFilterChange={handleFilterChange}
           initialFilters={filtros}
           className={`
-          transition-all duration-500 py-8 ease-in-out
+          transition-all duration-500 pb-8 ease-in-out
           fixed z-50 lg:z-auto lg:relative
-          top-0 left-0 h-full shadow-xl
+          top-0 left-0 h-full shadow-xl flex flex-col overflow-hidden
           ${
             sideBarVisible
               ? "w-64 translate-x-0 opacity-100 pointer-events-auto"
@@ -108,7 +108,7 @@ export default function App() {
           lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto lg:w-64
         `}
         />
-        <div className="flex flex-col flex-1 gap-8 overflow-y-auto">
+        <div className="flex flex-col flex-1 gap-8 overflow-y-scroll">
           <Menu onToggleSideBar={toggleSideBar} />
           <ProductContainer>
             {produtosFiltrados.map((item: Produto) => (

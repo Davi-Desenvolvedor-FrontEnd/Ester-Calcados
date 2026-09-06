@@ -1,4 +1,5 @@
 import { FaStar, FaRegStar, FaHeart, FaWhatsapp } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 interface ProductCardProps {
   id: number;
@@ -25,6 +26,7 @@ export default function ProductCard({
   destaque,
   desconto,
 }: ProductCardProps) {
+  const navigate = useNavigate()
   const precoComDesconto = desconto > 0 ? price * (1 - desconto / 100) : price;
 
   // Renderização das estrelas no tom do design (#e56b92 / rosa-roxo)
@@ -40,7 +42,7 @@ export default function ProductCard({
   };
 
   return (
-    <div className="produto-card shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative border border-gray-100/80 font-['Poppins',sans-serif] w-full">
+    <div className="produto-card shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative border border-gray-100/80 font-['Poppins',sans-serif] w-full" onClick={()=>navigate(`/product/${id}`)}>
       <div className="w-full aspect-square relative">
         <button
           type="button"
