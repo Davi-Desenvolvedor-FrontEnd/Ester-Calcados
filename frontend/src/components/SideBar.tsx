@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DoubleSlider from "./DoubleSlider";
 
 interface PriceRange {
@@ -6,28 +6,28 @@ interface PriceRange {
   max: number;
 }
 
+interface FilterState {
+  priceRange: PriceRange;
+  categories: number[];
+}
+
 interface SideBarProps extends React.HTMLAttributes<HTMLDivElement> {
   isOpen?: boolean;
-  onClose?: () => void; // para fechar no mobile
+  onClose?: () => void;
+  onFilterChange?: (filtros: FilterState) => void;
+  initialFilters?: FilterState;
 }
 
 export default function SideBar({
   isOpen,
   onClose,
+  onFilterChange,
+  initialFilters,
   className,
   ...props
 }: SideBarProps) {
-  const [priceRange, setPriceRange] = useState<PriceRange>({
-    min: 0,
-    max: 1000,
-  });
   const minPrice = 0;
   const maxPrice = 1000;
-
-  const handlePriceChange = ({ min, max }: PriceRange) => {
-    setPriceRange({ min, max });
-    console.log("Preço selecionado:", { min, max });
-  };
 
   const categorias = [
     { id: 1, label: "Calçados" },
@@ -35,29 +35,63 @@ export default function SideBar({
     { id: 3, label: "Bolsas" },
   ];
 
+  const [priceRange, setPriceRange] = useState<PriceRange>(
+    initialFilters?.priceRange || { min: minPrice, max: maxPrice }
+  );
+  
   const [selectedCategories, setSelectedCategories] = useState<number[]>(
-    categorias.map((c) => c.id),
+    initialFilters?.categories || categorias.map((c) => c.id)
   );
 
-  const toggleCategory = (categoryId: number) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId],
-    );
+  useEffect(() => {
+    if (initialFilters) {
+      setPriceRange(initialFilters.priceRange);
+      setSelectedCategories(initialFilters.categories);
+    }
+  }, [initialFilters]);
+
+  const handlePriceChange = ({ min, max }: PriceRange) => {
+    setPriceRange({ min, max });
+    if (onFilterChange) {
+      onFilterChange({
+        priceRange: { min, max },
+        categories: selectedCategories,
+      });
+    }
   };
 
-  const [resetKey, setResetKey] = useState(0);
+  const toggleCategory = (categoryId: number) => {
+    const newCategories = selectedCategories.includes(categoryId)
+      ? selectedCategories.filter((id) => id !== categoryId)
+      : [...selectedCategories, categoryId];
+    
+    setSelectedCategories(newCategories);
+    
+    if (onFilterChange) {
+      onFilterChange({
+        priceRange,
+        categories: newCategories,
+      });
+    }
+  };
 
   const clearFilters = () => {
-    setSelectedCategories(categorias.map((c) => c.id));
-    setPriceRange({ min: minPrice, max: maxPrice });
-    setResetKey((prev) => prev + 1);
+    const allCategories = categorias.map((c) => c.id);
+    const defaultPrice = { min: minPrice, max: maxPrice };
+    
+    setSelectedCategories(allCategories);
+    setPriceRange(defaultPrice);
+    
+    if (onFilterChange) {
+      onFilterChange({
+        priceRange: defaultPrice,
+        categories: allCategories,
+      });
+    }
   };
 
   return (
     <aside className={`side-bar ${className}`} {...props}>
-      {/* Cabeçalho com título e botão fechar (mobile) */}
       <div className="flex items-center lg:bg-(--surface) justify-end md:justify-start p-4 border-b border-gray-200 rounded-xl">
         <div className="md:flex hidden items-center gap-2">
           <i className="fa-solid fa-sliders text-(--secondary) text-2xl"></i>
@@ -88,12 +122,11 @@ export default function SideBar({
         <div className="filter-box mb-6">
           <p className="text-gray-700 mb-2">Faixa de Preço</p>
           <DoubleSlider
-            key={resetKey}
-            min={Math.floor(minPrice)}
-            max={Math.ceil(maxPrice)}
+            min={minPrice}
+            max={maxPrice}
             step={1}
-            initialMin={Math.floor(minPrice)}
-            initialMax={Math.ceil(maxPrice)}
+            initialMin={priceRange.min}
+            initialMax={priceRange.max}
             onPriceChange={handlePriceChange}
           />
         </div>

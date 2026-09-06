@@ -1,32 +1,35 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState<"sign" | "register">("sign");
-
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const location = useLocation();
-  const navigate = useNavigate()
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Login attempt:", { email, password });
-  };
+  const navigate = useNavigate();
+  const { login } = useAuth(); 
 
   useEffect(() => {
-    if (location.pathname == "/User/register") {
+    if (location.pathname === "/User/register") {
       setMode("register");
     }
-  }, []);
+  }, [location.pathname]);
 
-  async function handleLogin() {
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
     try {
       const dadosLogin = {
         email: email,
         senha: password,
       };
+
       const response = await fetch("http://localhost:3000/users/login", {
         method: "POST",
         headers: {
@@ -41,21 +44,25 @@ export default function Login() {
 
       const resultado = await response.json();
 
-      const token = resultado.token;
-      localStorage.setItem("token", token);
       if (resultado.success) {
-        alert(resultado.message)
-        navigate("/")
+        const { token, usuarioCargo, usuarioId } = resultado;
+        login(token, usuarioCargo, usuarioId);
+        navigate("/");
+      } else {
+        setError(resultado.message || "Erro ao fazer login");
       }
     } catch (error) {
+      setError(error instanceof Error ? error.message : "Erro ao fazer login");
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <div className="h-full w-full flex items-start justify-center bg-linear-to-br  py-8 ">
       <div className="w-full max-w-md bg-white rounded-md shadow-2xl p-8 transition-all duration-300 hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.4)] ">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form className="space-y-6">
           {mode == "register" && (
             <div>
               <label
@@ -234,7 +241,7 @@ export default function Login() {
           <button
             type="submit"
             onClick={handleLogin}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ease-in-out transform active:scale-[0.98] cursor-pointer"
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ease-in-out transform active:scale-[0.98] cursor-pointer bg-(--secondary)"
           >
             Entrar
           </button>

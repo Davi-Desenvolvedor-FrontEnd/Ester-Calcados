@@ -43,7 +43,8 @@ const AuthController = {
         success: true,
         message: "Login realizado com sucesso",
         token,
-        usuario: usuarioSemSenha,
+        usuarioCargo: usuarioSemSenha.cargo,
+        usuarioId: usuarioSemSenha.id,
         expiresIn: process.env.JWT_EXPIRES_IN,
       });
     } catch (error) {
