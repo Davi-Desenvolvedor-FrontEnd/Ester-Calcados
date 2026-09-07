@@ -96,10 +96,8 @@ export default function App() {
   }, [sideBarVisible]);
 
   return (
-    <div
-      className="w-full min-h-screen  bg-amber-50 flex flex-col"
-    >
-      <main className="flex">
+    <div className="w-full min-h-screen bg-[#fafafb] flex flex-col font-['Poppins',sans-serif]">
+      <main className="flex max-w-360 mx-auto w-full p-4 md:p-8 gap-8">
         {sideBarVisible && (
           <div
             className="fixed inset-0 z-40 bg-black/50"
@@ -117,8 +115,8 @@ export default function App() {
           top-0 left-0 h-full shadow-xl flex flex-col bg-white
           ${
             sideBarVisible
-              ? "w-64 translate-x-0 opacity-100 pointer-events-auto"
-              : "w-64 -translate-x-full opacity-0 pointer-events-none"
+              ? "w-70 translate-x-0 opacity-100 pointer-events-auto"
+              : "w-70 -translate-x-full opacity-0 pointer-events-none"
           }
         `}
         />

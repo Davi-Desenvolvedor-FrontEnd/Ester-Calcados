@@ -1,16 +1,17 @@
 "use client";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { AiFillPlusCircle } from "react-icons/ai";
 
 export default function Header() {
   const location = useLocation();
   const { isAuthenticated, isAdmin } = useAuth();
+  const navigate = useNavigate()
 
   return (
     <header className="w-full py-4 gap-16 flex flex-row justify-between items-center text-amber-50 bg-(--primary)/20 px-4">
       <div className="max-md:pl-2">
-        <h1 className="text-9xl max-md:text-4xl font-medium font-dancing">
+        <h1 className="cursor-pointer text-9xl max-md:text-4xl font-medium font-dancing" onClick={()=>navigate("/")}>
           Ester Calçados
         </h1>
       </div>

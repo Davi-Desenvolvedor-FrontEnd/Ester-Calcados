@@ -1,15 +1,15 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-} from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { getToken, getCargo } from "../auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (token: string, cargo: string, userId: string) => void;
+  login: (
+    token: string,
+    cargo: string,
+    userId: string,
+    expiresIn: Date,
+  ) => void;
   logout: () => void;
 }
 
@@ -33,13 +33,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    checkAuth();
+    const now = new Date();
+    const expiresIn = localStorage.getItem("expiresIn");
+    if (expiresIn) {
+      if (new Date(expiresIn) < now) {
+        logout();
+      } else {
+        checkAuth();
+      }
+    }
   }, []);
 
-  const login = (token: string, cargo: string, userId: string) => {
+  const login = (
+    token: string,
+    cargo: string,
+    userId: string,
+    expiresIn: Date,
+  ) => {
     localStorage.setItem("token", token);
     localStorage.setItem("cargo", cargo);
     localStorage.setItem("userId", userId);
+    localStorage.setItem("expiresIn", expiresIn.toString());
     checkAuth();
   };
 
@@ -47,6 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("token");
     localStorage.removeItem("cargo");
     localStorage.removeItem("userId");
+    localStorage.removeItem("expiresIn");
     checkAuth();
   };
 

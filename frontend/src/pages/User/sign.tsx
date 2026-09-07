@@ -11,7 +11,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
-  const { login } = useAuth(); 
+  const { login } = useAuth();
 
   useEffect(() => {
     if (location.pathname === "/User/register") {
@@ -45,8 +45,12 @@ export default function Login() {
       const resultado = await response.json();
 
       if (resultado.success) {
-        const { token, usuarioCargo, usuarioId } = resultado;
-        login(token, usuarioCargo, usuarioId);
+        const { token, usuarioCargo, usuarioId, expiresIn } = resultado;
+        const now = new Date();
+        const nowAfter = new Date(now);
+
+        nowAfter.setHours(now.getHours() + Number(expiresIn));
+        login(token, usuarioCargo, usuarioId, nowAfter);
         navigate("/");
       } else {
         setError(resultado.message || "Erro ao fazer login");

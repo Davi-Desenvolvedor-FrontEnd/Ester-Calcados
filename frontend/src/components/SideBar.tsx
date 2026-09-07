@@ -99,7 +99,7 @@ export default function SideBar({
         </div>
         <button
           onClick={onClose}
-          className="flex self-end p-1 border border-gray-300 rounded-md transition-colors translate-x-16 lg:translate-x-36"
+          className="flex self-end p-1 border border-gray-300 rounded-md transition-colors translate-x-16 lg:translate-x-42 cursor-pointer"
           aria-label="Fechar filtros"
         >
           <svg

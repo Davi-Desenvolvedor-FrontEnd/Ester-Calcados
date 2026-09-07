@@ -43,16 +43,20 @@ export default function ProductCard({
 
   return (
     <div
-      className="produto-card flex-1 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative border border-gray-100/80 font-['Poppins',sans-serif]"
+      className="produto-card flex-1 shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col justify-between relative border border-gray-100 font-['Poppins',sans-serif] p-4"
       onClick={() => navigate(`/product/${id}`)}
     >
-      <div className="w-full aspect-square relative">
+      <div className="w-full aspect-square relative mb-4">
         <button
           type="button"
           aria-label="Adicionar aos favoritos"
-          className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#8b46cd] transition-colors shadow-xs z-10"
+          onClick={(e) => {
+            e.stopPropagation();
+            // Lógica de favoritar aqui
+          }}
+          className="absolute top-0 right-0 w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-300 hover:text-[#8b46cd] hover:border-[#8b46cd] transition-all shadow-sm z-10"
         >
-          <FaHeart className="text-[13px]" />
+          <FaHeart className="text-[14px]" />
         </button>
         <img
           src={photo}
@@ -60,43 +64,53 @@ export default function ProductCard({
           className="relative h-full w-full object-contain"
         />
       </div>
-      <div className="flex flex-col grow px-4 py-2">
-        {" "}
-        <h3 className="text-[20px] font-bold text-gray-800 line-clamp-1 mb-1">
+
+      <div className="flex flex-col grow">
+        <h3 className="text-[15px] font-medium text-gray-700 line-clamp-2 mb-2 leading-tight">
           {name}
         </h3>
-        <div className="flex items-center gap-1.5 mb-2">
+
+        <div className="flex items-center gap-1.5 mb-3">
           {nRating > 0 ? (
             <>
-              <div className="flex gap-0.5">{renderStars(rating)}</div>
-              <p className="text-[14px]  font-normal">{rating}</p>
-              <p className="text-[14px]  font-normal">({nRating})</p>
+              <div className="flex gap-0.5 text-[#8b46cd] text-[12px]">
+                {renderStars(rating)}
+              </div>
+              <p className="text-[12px] text-gray-400 font-medium">
+                ({nRating})
+              </p>
             </>
           ) : (
-            <p className="text-[14px]">Sem avaliações</p>
+            <p className="text-[12px] text-gray-400">Sem avaliações</p>
           )}
         </div>
-        <div className="mt-auto mb-3">
+
+        <div className="mt-auto mb-4">
           {desconto > 0 ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-[#8b46cd]">
+            <div className="flex flex-col">
+              <span className="text-[13px] text-gray-400 line-through">
+                R$ {Number(price).toFixed(2).replace(".", ",")}
+              </span>
+              <span className="text-[22px] font-bold text-[#8b46cd] leading-none mt-1">
                 R$ {precoComDesconto.toFixed(2).replace(".", ",")}
               </span>
-              <p className="text-[14px]  line-through">
-                R$ {Number(price).toFixed(2).replace(".", ",")}
-              </p>
             </div>
           ) : (
-            <span className="text-xl font-bold text-[#8b46cd]">
+            <span className="text-[22px] font-bold text-[#8b46cd] leading-none">
               R$ {Number(price).toFixed(2).replace(".", ",")}
             </span>
           )}
         </div>
+
         <button
           type="button"
-          className="w-full h-10 bg-[#8b46cd] hover:bg-[#7a3bb8] active:bg-[#6931a2] text-white font-medium text-[13px] rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            // Lógica de compra aqui
+          }}
+          className="w-full h-11 bg-[#8b46cd] hover:bg-[#7a3bb8] active:bg-[#6931a2] text-white font-medium text-[14px] rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
         >
-          <FaWhatsapp className="text-xl" />
+          <FaWhatsapp className="text-[18px]" />
           <span>Comprar</span>
         </button>
       </div>
