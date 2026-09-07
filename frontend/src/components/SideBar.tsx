@@ -92,18 +92,18 @@ export default function SideBar({
 
   return (
     <aside className={`${className}`} {...props}>
-      <div className="flex items-center justify-end md:justify-start p-4 border-b border-gray-400 mx-2">
+      <div className="flex items-center justify-between lg:justify-start p-4 border-b border-gray-400 mx-2">
         <div className="md:flex hidden items-center gap-2">
           <i className="fa-solid fa-sliders text-(--secondary) text-2xl"></i>
           <p className="text-(--text) text-2xl">Filtros</p>
         </div>
         <button
           onClick={onClose}
-          className="lg:hidden flex self-end p-1 bg-(--surface) rounded-full hover:bg-gray-100 transition-colors"
+          className="flex self-end p-1 border border-gray-300 rounded-md transition-colors translate-x-16 lg:translate-x-36"
           aria-label="Fechar filtros"
         >
           <svg
-            className="w-6 h-6 text-gray-600"
+            className="w-6 h-6 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

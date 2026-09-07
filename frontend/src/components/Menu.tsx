@@ -10,10 +10,10 @@ export default function Menu({ onToggleSideBar }: MenuProps) {
       {/* Botão de filtro – visível apenas em mobile */}
       <button
         onClick={onToggleSideBar}
-        className="lg:hidden flex items-center gap-2 bg-amber-50"
+        className="flex items-center gap-2 bg-amber-50"
       >
-        <i className="fa-solid fa-sliders text-(--secondary)"></i>
-        <span className="text-(--secondary)">Filtros</span>
+        <i className="fa-solid fa-sliders text-2xl text-(--secondary)"></i>
+        <span className="text-(--text) text-2xl">Filtros</span>
       </button>
 
       {/* Info de contato (desktop e mobile) */}

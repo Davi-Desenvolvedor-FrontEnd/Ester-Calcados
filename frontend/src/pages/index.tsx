@@ -82,12 +82,27 @@ export default function App() {
     setFiltros(novosFiltros);
   };
 
+  useEffect(() => {
+    if (sideBarVisible) {
+      document.body.style.overflowY = "hidden";
+    } else {
+      document.body.style.overflowY = "unset";
+    }
+
+    // Cleanup para quando o componente desmontar
+    return () => {
+      document.body.style.overflowY = "unset";
+    };
+  }, [sideBarVisible]);
+
   return (
-    <div className="h-screen w-screen bg-amber-50 min-h-screen flex flex-col">
+    <div
+      className="w-full min-h-screen  bg-amber-50 flex flex-col"
+    >
       <main className="flex">
         {sideBarVisible && (
           <div
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            className="fixed inset-0 z-40 bg-black/50"
             onClick={closeSideBar}
           />
         )}
@@ -98,17 +113,16 @@ export default function App() {
           initialFilters={filtros}
           className={`
           transition-all duration-500 pb-8 ease-in-out
-          fixed z-50 lg:z-auto lg:relative
-          top-0 left-0 h-full shadow-xl flex flex-col overflow-hidden
+          fixed z-50
+          top-0 left-0 h-full shadow-xl flex flex-col bg-white
           ${
             sideBarVisible
               ? "w-64 translate-x-0 opacity-100 pointer-events-auto"
-              : "w-0 translate-x-full opacity-0 pointer-events-none"
+              : "w-64 -translate-x-full opacity-0 pointer-events-none"
           }
-          lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto lg:w-64
         `}
         />
-        <div className="flex flex-col flex-1 gap-8 overflow-y-scroll">
+        <div className="flex flex-col flex-1 gap-8 w-full">
           <Menu onToggleSideBar={toggleSideBar} />
           <ProductContainer>
             {produtosFiltrados.map((item: Produto) => (
