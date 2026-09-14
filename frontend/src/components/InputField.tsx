@@ -43,7 +43,7 @@ export default function InputField({
 
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="block text-sm font-semibold text-(--text)">
+      <label htmlFor={id} className="block text-sm font-semibold text-plum-900">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       {isTextarea ? (

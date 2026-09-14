@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from "react";
-import DoubleSlider from "./DoubleSlider";
+import {
+  SlidersHorizontal,
+  RotateCcw,
+  Footprints,
+  Glasses,
+  ShoppingBag,
+} from "lucide-react";
 
-interface PriceRange {
+export interface PriceRange {
   min: number;
   max: number;
 }
 
-interface FilterState {
+export interface FilterState {
   priceRange: PriceRange;
   categories: number[];
+  disponivel?: boolean;
+  promocao?: boolean;
+  novidades?: boolean;
 }
 
 interface SideBarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -18,17 +27,28 @@ interface SideBarProps extends React.HTMLAttributes<HTMLDivElement> {
   initialFilters?: FilterState;
 }
 
+const ICONES: Record<number, React.ElementType> = {
+  1: Footprints,
+  2: Glasses,
+  3: ShoppingBag,
+};
+
+const minPrice = 0;
+const maxPrice = 1000;
+
+const formatarPreco = (val: number) =>
+  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
+    val,
+  );
+
 export default function SideBar({
   isOpen,
   onClose,
   onFilterChange,
   initialFilters,
-  className,
+  className = "",
   ...props
 }: SideBarProps) {
-  const minPrice = 0;
-  const maxPrice = 1000;
-
   const categorias = [
     { id: 1, label: "Calçados" },
     { id: 2, label: "Óculos" },
@@ -36,146 +56,261 @@ export default function SideBar({
   ];
 
   const [priceRange, setPriceRange] = useState<PriceRange>(
-    initialFilters?.priceRange || { min: minPrice, max: maxPrice }
+    initialFilters?.priceRange || { min: minPrice, max: maxPrice },
   );
-  
+
   const [selectedCategories, setSelectedCategories] = useState<number[]>(
-    initialFilters?.categories || categorias.map((c) => c.id)
+    initialFilters?.categories || categorias.map((c) => c.id),
   );
+
+  const [stockFilters, setStockFilters] = useState({
+    disponivel: initialFilters?.disponivel ?? false,
+    promocao: initialFilters?.promocao ?? false,
+    novidades: initialFilters?.novidades ?? false,
+  });
 
   useEffect(() => {
     if (initialFilters) {
       setPriceRange(initialFilters.priceRange);
       setSelectedCategories(initialFilters.categories);
+      setStockFilters({
+        disponivel: initialFilters?.disponivel ?? false,
+        promocao: initialFilters?.promocao ?? false,
+        novidades: initialFilters?.novidades ?? false,
+      });
     }
   }, [initialFilters]);
 
-  const handlePriceChange = ({ min, max }: PriceRange) => {
-    setPriceRange({ min, max });
+  const emitFilterChange = (
+    updatedPrice = priceRange,
+    updatedCategories = selectedCategories,
+    updatedStock = stockFilters,
+  ) => {
     if (onFilterChange) {
       onFilterChange({
-        priceRange: { min, max },
-        categories: selectedCategories,
+        priceRange: updatedPrice,
+        categories: updatedCategories,
+        ...updatedStock,
       });
     }
+  };
+
+  const handleMinChange = (val: number) => {
+    // Garante que o mínimo não ultrapasse o máximo
+    const newMin = Math.min(val, priceRange.max - 10);
+    const newRange = { ...priceRange, min: Math.max(minPrice, newMin) };
+    setPriceRange(newRange);
+    emitFilterChange(newRange);
+  };
+
+  const handleMaxChange = (val: number) => {
+    // Garante que o máximo não seja menor que o mínimo
+    const newMax = Math.max(val, priceRange.min + 10);
+    const newRange = { ...priceRange, max: Math.min(maxPrice, newMax) };
+    setPriceRange(newRange);
+    emitFilterChange(newRange);
   };
 
   const toggleCategory = (categoryId: number) => {
     const newCategories = selectedCategories.includes(categoryId)
       ? selectedCategories.filter((id) => id !== categoryId)
       : [...selectedCategories, categoryId];
-    
+
     setSelectedCategories(newCategories);
-    
-    if (onFilterChange) {
-      onFilterChange({
-        priceRange,
-        categories: newCategories,
-      });
-    }
+    emitFilterChange(priceRange, newCategories);
+  };
+
+  const toggleStock = (key: keyof typeof stockFilters) => {
+    const newStock = { ...stockFilters, [key]: !stockFilters[key] };
+    setStockFilters(newStock);
+    emitFilterChange(priceRange, selectedCategories, newStock);
   };
 
   const clearFilters = () => {
-    const allCategories = categorias.map((c) => c.id);
+    const defaultCategories = categorias.map((c) => c.id);
     const defaultPrice = { min: minPrice, max: maxPrice };
-    
-    setSelectedCategories(allCategories);
+    const defaultStock = {
+      disponivel: false,
+      promocao: false,
+      novidades: false,
+    };
+
     setPriceRange(defaultPrice);
-    
+    setSelectedCategories(defaultCategories);
+    setStockFilters(defaultStock);
+
     if (onFilterChange) {
       onFilterChange({
         priceRange: defaultPrice,
-        categories: allCategories,
+        categories: defaultCategories,
+        ...defaultStock,
       });
     }
   };
 
   return (
-    <aside className={`${className}`} {...props}>
-      <div className="flex items-center justify-between lg:justify-start p-4 border-b border-gray-400 mx-2">
-        <div className="md:flex hidden items-center gap-2">
-          <i className="fa-solid fa-sliders text-(--secondary) text-2xl"></i>
-          <p className="text-(--text) text-2xl">Filtros</p>
-        </div>
-        <button
-          onClick={onClose}
-          className="flex self-end p-1 border border-gray-300 rounded-md transition-colors translate-x-16 lg:translate-x-42 cursor-pointer"
-          aria-label="Fechar filtros"
-        >
-          <svg
-            className="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+    <aside
+      aria-label="Filtros de produtos"
+      className={`h-fit rounded-2xl border border-brand-100 bg-white p-5 shadow-card lg:sticky lg:top-24 ${className}`}
+      {...props}
+    >
+      <div className="mb-5 flex items-center gap-2">
+        <SlidersHorizontal
+          className="h-5 w-5 text-plum-700"
+          aria-hidden="true"
+        />
+        <h2 className="font-display text-lg font-semibold text-plum-900">
+          Filtros
+        </h2>
       </div>
 
-      <div className="filters-content p-4 overflow-y-auto flex-1">
-        <div className="filter-box mb-6">
-          <p className="text-gray-700 mb-2">Faixa de Preço</p>
-          <DoubleSlider
+      {/* Faixa de preço */}
+      <fieldset className="mb-6 border-t border-brand-100 pt-5">
+        <legend className="mb-3 text-sm font-semibold text-plum-900">
+          Faixa de Preço
+        </legend>
+        <div className="mb-3 flex items-center justify-between text-sm text-plum-600">
+          <span>{formatarPreco(priceRange.min)}</span>
+          <span>{formatarPreco(priceRange.max)}</span>
+        </div>
+        
+        {/* Container do Slider com pointer-events corrigidos */}
+        <div className="relative h-5 w-full flex items-center">
+          <div className="absolute left-0 right-0 h-1.5 rounded-full bg-brand-100" />
+          <div
+            className="absolute h-1.5 rounded-full bg-brand-500"
+            style={{
+              left: `${((priceRange.min - minPrice) / (maxPrice - minPrice)) * 100}%`,
+              right: `${100 - ((priceRange.max - minPrice) / (maxPrice - minPrice)) * 100}%`,
+            }}
+          />
+          <input
+            type="range"
+            aria-label="Preço mínimo"
             min={minPrice}
             max={maxPrice}
-            step={1}
-            initialMin={priceRange.min}
-            initialMax={priceRange.max}
-            onPriceChange={handlePriceChange}
+            step={10}
+            value={priceRange.min}
+            onChange={(e) => handleMinChange(Number(e.target.value))}
+            className="pointer-events-none absolute inset-x-0 h-1.5 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand-500 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-brand-500"
+            style={{ zIndex: priceRange.min > maxPrice - 100 ? "5" : "3" }}
+          />
+          <input
+            type="range"
+            aria-label="Preço máximo"
+            min={minPrice}
+            max={maxPrice}
+            step={10}
+            value={priceRange.max}
+            onChange={(e) => handleMaxChange(Number(e.target.value))}
+            className="pointer-events-none absolute inset-x-0 h-1.5 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand-500 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-brand-500"
+            style={{ zIndex: "4" }}
           />
         </div>
+      </fieldset>
 
-        <div className="filter-box">
-          <p className="text-gray-700 mb-2">Categorias</p>
-          <div className="flex flex-col gap-1">
-            {categorias.map((item) => (
-              <label
-                key={item.id}
-                htmlFor={String(item.id)}
-                className="flex items-center gap-4 p-3 rounded-xl duration-200 cursor-pointer border-2 border-transparent group hover:border-purple-200"
-              >
-                <div className="relative flex items-center justify-center">
+      {/* Categorias */}
+      <fieldset className="mb-6 border-t border-brand-100 pt-5">
+        <legend className="mb-3 text-sm font-semibold text-plum-900">
+          Categorias
+        </legend>
+        <ul className="flex flex-col gap-2.5">
+          {categorias.map((cat) => {
+            const Icon = ICONES[cat.id];
+            const marcado = selectedCategories.includes(cat.id);
+            return (
+              <li key={cat.id}>
+                <label className="flex cursor-pointer items-center gap-3 text-sm text-plum-800">
                   <input
                     type="checkbox"
-                    id={String(item.id)}
-                    checked={selectedCategories.includes(item.id)}
-                    onChange={() => toggleCategory(item.id)}
-                    className="peer appearance-none w-4 h-4 rounded-sm border-2 border-gray-300 cursor-pointer transition-all duration-200 checked:bg-purple-600 checked:border-purple-600 hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    checked={marcado}
+                    onChange={() => toggleCategory(cat.id)}
+                    className="h-4 w-4 rounded border-brand-300 text-brand-500 accent-brand-500 focus-visible:outline-2 focus-visible:outline-plum-500"
                   />
-                  <svg
-                    className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity duration-200"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
+                  {Icon && (
+                    <Icon
+                      className="h-4 w-4 text-plum-500"
+                      aria-hidden="true"
                     />
-                  </svg>
-                </div>
-                <span className="font-normal text-[16px] transition-colors group-hover:text-purple-600">
-                  {item.label}
-                </span>
-              </label>
-            ))}
-          </div>
-          <button
-            onClick={clearFilters}
-            className="mt-4 text-sm cursor-pointer text-purple-600 hover:text-purple-800 font-medium"
-          >
-            Limpar filtros
-          </button>
-        </div>
-      </div>
+                  )}
+                  {cat.label}
+                </label>
+              </li>
+            );
+          })}
+        </ul>
+      </fieldset>
+
+      {/* Estoque e Promoções */}
+      <fieldset className="mb-6 border-t border-brand-100 pt-5">
+        <legend className="mb-3 text-sm font-semibold text-plum-900">
+          Estoque
+        </legend>
+        <ToggleRow
+          label="Disponível"
+          descricao="Produtos em estoque"
+          checked={stockFilters.disponivel}
+          onChange={() => toggleStock("disponivel")}
+        />
+        <ToggleRow
+          label="Promoção"
+          descricao="Produtos em promoção"
+          checked={stockFilters.promocao}
+          onChange={() => toggleStock("promocao")}
+        />
+        <ToggleRow
+          label="Novidades"
+          descricao="Lançamentos recentes"
+          checked={stockFilters.novidades}
+          onChange={() => toggleStock("novidades")}
+        />
+      </fieldset>
+
+      <button
+        type="button"
+        onClick={clearFilters}
+        className="flex w-full items-center justify-center gap-2 rounded-full border border-plum-200 py-2.5 text-sm font-medium text-plum-700 transition hover:bg-plum-50"
+      >
+        <RotateCcw className="h-4 w-4" aria-hidden="true" />
+        Limpar Filtros
+      </button>
     </aside>
+  );
+}
+
+
+interface ToggleRowProps {
+  label: string;
+  descricao: string;
+  checked: boolean;
+  onChange: () => void;
+}
+
+function ToggleRow({ label, descricao, checked, onChange }: ToggleRowProps) {
+  return (
+    <div className="mb-3 flex items-center justify-between last:mb-0">
+      <div>
+        <p className="text-sm font-medium text-plum-900">{label}</p>
+        <p className="text-xs text-plum-500">{descricao}</p>
+      </div>
+      
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        onClick={onChange}
+        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-plum-500 focus-visible:ring-offset-2 ${
+          checked ? "bg-plum-600" : "bg-plum-200"
+        }`}
+      >
+        <span
+          aria-hidden="true"
+          className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+            checked ? "translate-x-5" : "translate-x-0"
+          }`}
+        />
+      </button>
+    </div>
   );
 }

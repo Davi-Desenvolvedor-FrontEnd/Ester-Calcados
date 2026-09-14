@@ -24,7 +24,7 @@ export default function SelectField({
     <div>
       <label
         htmlFor={name}
-        className="block text-sm font-semibold text-(--text) mb-1"
+        className="block text-sm font-semibold text-plum-900 mb-1"
       >
         {label}
       </label>
@@ -34,7 +34,7 @@ export default function SelectField({
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-(--primary) focus:border-(--primary) outline-none transition-all bg-white"
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-(--primary) focus:border-(--primary) text-plum-900 outline-none transition-all bg-white"
       >
         <option value="">{placeholder}</option>
         {options.map((option) => (

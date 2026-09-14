@@ -46,11 +46,21 @@ export default function Login() {
 
       if (resultado.success) {
         const { token, usuarioCargo, usuarioId, expiresIn } = resultado;
-        const now = new Date();
-        const nowAfter = new Date(now);
 
-        nowAfter.setHours(now.getHours() + Number(expiresIn));
-        login(token, usuarioCargo, usuarioId, nowAfter);
+        // Tratamento robusto para expiração:
+        const now = new Date();
+        let expirationDate: Date;
+
+        // Se expiresIn vier em segundos (ex: 3600 do JWT)
+        const seconds = parseInt(expiresIn, 10);
+        if (!isNaN(seconds)) {
+          expirationDate = new Date(now.getTime() + seconds * 1000);
+        } else {
+          // Se vier como uma data completa da API
+          expirationDate = new Date(expiresIn);
+        }
+
+        login(token, usuarioCargo, usuarioId, expirationDate);
         navigate("/");
       } else {
         setError(resultado.message || "Erro ao fazer login");

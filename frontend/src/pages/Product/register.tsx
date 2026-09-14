@@ -219,7 +219,7 @@ export default function ProductForm() {
         />
 
         <div className="pt-2">
-          <label className="block text-sm font-medium text-(--text) mb-2">
+          <label className="block text-sm font-medium text-plum-900 mb-2">
             Tamanhos disponíveis
           </label>
           <div className="grid grid-cols-6 gap-2">

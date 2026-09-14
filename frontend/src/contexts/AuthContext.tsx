@@ -33,38 +33,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+  const expiresIn = localStorage.getItem("expiresIn");
+
+  if (expiresIn) {
+    const expirationDate = new Date(expiresIn);
     const now = new Date();
-    const expiresIn = localStorage.getItem("expiresIn");
-    if (expiresIn) {
-      if (new Date(expiresIn) < now) {
-        logout();
-      } else {
-        checkAuth();
-      }
+
+    if (isNaN(expirationDate.getTime()) || expirationDate < now) {
+      logout();
+      return;
     }
-  }, []);
+  }
+
+  checkAuth();
+}, []);
 
   const login = (
-    token: string,
-    cargo: string,
-    userId: string,
-    expiresIn: Date,
-  ) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("cargo", cargo);
-    localStorage.setItem("userId", userId);
-    localStorage.setItem("expiresIn", expiresIn.toString());
-    checkAuth();
-  };
+  token: string,
+  cargo: string,
+  userId: string,
+  expiresIn: Date,
+) => {
+  localStorage.setItem("token", token);
+  localStorage.setItem("cargo", cargo);
+  localStorage.setItem("userId", userId);
+  localStorage.setItem("expiresIn", expiresIn.toISOString()); // ISO String padronizada
+  checkAuth();
+};
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("cargo");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("expiresIn");
-    checkAuth();
-  };
-
+  localStorage.removeItem("token");
+  localStorage.removeItem("cargo");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("expiresIn");
+  
+  setIsAuthenticated(false);
+  setIsAdmin(false);
+};
   return (
     <AuthContext.Provider value={{ isAuthenticated, isAdmin, login, logout }}>
       {children}

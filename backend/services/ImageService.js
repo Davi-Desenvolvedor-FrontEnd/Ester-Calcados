@@ -1,62 +1,14 @@
 import sharp from "sharp";
 
-export async function processarImagem(imagemBuffer, desconto, nomeProduto) {
+export async function processarImagem(imagemBuffer) {
   try {
     const nomeArquivo = `produto_${Date.now()}.jpg`;
-    const largura = 800;
-    const altura = 800;
-    const corDestaque = "#9E005D";
-    const white = "#fff";
-
-    const svgOverlay = `
-      <svg width="${largura}" height="${altura}" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="6" width="788" height="788" fill="none" stroke="${corDestaque}" stroke-width="12"/>
-        <rect x="20" y="20" width="120" height="90" rx="8" fill="rgba(0, 0, 0, 0.45)"/>
-        <g transform="translate(30, 32)">
-          <circle cx="50" cy="15" r="9" fill="${white}"/>
-          <circle cx="40" cy="26" r="9" fill="${white}"/>
-          <circle cx="60" cy="26" r="9" fill="${white}"/>
-          <text x="50" y="65" font-family="'Times New Roman', Georgia, serif" font-size="28" fill="${white}" font-weight="bold" text-anchor="middle">ESTILO</text>
-          <text x="50" y="80" font-family="Arial, sans-serif" font-size="16" fill="${white}" letter-spacing="2" text-anchor="middle" font-weight="bold">BRASILEIRO</text>
-        </g>
-        ${
-          desconto > 0 &&
-          ` <g transform="translate(680, 120) rotate(45)">
-              <rect
-                x="-200"
-                y="-45"
-                width="400"
-                height="90"
-                fill="${corDestaque}"
-              />
-              <text
-                x="0"
-                y="15"
-                font-family="cursive"
-                font-size="60"
-                fill="${white}"
-                font-weight="normal"
-                text-anchor="middle"
-              >
-                ${desconto + "% OFF"}
-              </text>
-            </g>`
-        }
-      </svg>
-    `;
 
     const imagemProcessada = await sharp(imagemBuffer)
-      .resize(largura, altura, {
+      .resize(800, 800, {
         fit: "cover",
         position: "center",
       })
-      .composite([
-        {
-          input: Buffer.from(svgOverlay),
-          top: 0,
-          left: 0,
-        },
-      ])
       .jpeg({ quality: 90 })
       .toBuffer();
 
