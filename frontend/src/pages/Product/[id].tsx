@@ -10,6 +10,8 @@ import {
   FaShoppingBag,
   FaShareAlt,
   FaChevronRight,
+  FaChevronDown,
+  FaChevronUp,
   FaStore,
   FaExchangeAlt,
   FaShieldAlt,
@@ -24,13 +26,46 @@ import {
   FaAward,
   FaLeaf,
   FaRecycle,
+  FaExclamationCircle,
+  FaCheckCircle,
+  FaCommentDots,
 } from "react-icons/fa";
 import ProductCard from "../../components/ProductCard";
 import type { Produto } from "../../types";
+import { getToken, getUserId } from "../../auth";
 
 type ProductPageProps = {
   id: string;
 };
+
+// Formato de avaliação retornado pela rota GET /avaliacoes/:id
+type Avaliacao = {
+  id: number;
+  produto_id: number;
+  usuario_id: number;
+  nota: number;
+  comentario: string;
+  criado_em?: string;
+};
+
+// Usuário autenticado salvo no localStorage após o login.
+// Ajuste as chaves/campos abaixo conforme o formato real usado no restante do site.
+type UsuarioLogado = {
+  id: any;
+  token: string;
+};
+
+function getUsuarioLogado(): UsuarioLogado | null {
+  try {
+    const token = getToken();
+    const usuarioId = getUserId();
+    if (!token || !usuarioId) return null;
+
+    return { id: usuarioId, token };
+  } catch {
+    return null;
+  }
+}
 
 // SUBSTiTUA pelo número comercial do seu WhatsApp (DDD + Número, sem espaços ou traços)
 const PHONE_NUMBER = "5534999999999";
@@ -46,6 +81,24 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState<number>(1);
   const [mainPhoto, setMainPhoto] = useState<string>("");
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
+
+  // --- Avaliações ---
+  const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
+  const [avaliacoesCarregadas, setAvaliacoesCarregadas] =
+    useState<boolean>(false);
+  const [carregandoAvaliacoes, setCarregandoAvaliacoes] =
+    useState<boolean>(false);
+  const [erroAvaliacoes, setErroAvaliacoes] = useState<string | null>(null);
+  const [mostrarAvaliacoes, setMostrarAvaliacoes] = useState<boolean>(false);
+
+  const [notaSelecionada, setNotaSelecionada] = useState<number>(0);
+  const [notaHover, setNotaHover] = useState<number>(0);
+  const [comentario, setComentario] = useState<string>("");
+  const [enviandoAvaliacao, setEnviandoAvaliacao] = useState<boolean>(false);
+  const [erroEnvio, setErroEnvio] = useState<string | null>(null);
+  const [sucessoEnvio, setSucessoEnvio] = useState<boolean>(false);
+
+  const usuarioLogado = getUsuarioLogado();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,7 +141,140 @@ export default function ProductPage() {
     if (id) {
       fetchData();
     }
+
+    // Reseta o estado de avaliações ao trocar de produto
+    setMostrarAvaliacoes(false);
+    setAvaliacoesCarregadas(false);
+    setAvaliacoes([]);
+    setNotaSelecionada(0);
+    setComentario("");
+    setSucessoEnvio(false);
+    setErroEnvio(null);
   }, [id]);
+
+  const fetchAvaliacoes = async () => {
+    if (!id) return;
+    setCarregandoAvaliacoes(true);
+    setErroAvaliacoes(null);
+    try {
+      const res = await fetch(`http://localhost:3000/avaliacoes/${id}`, {
+        method: "GET",
+      });
+      const data = await res.json();
+
+      console.log(data)
+
+      if (!res.ok || !data.success) {
+        throw new Error(
+          data.message || "Não foi possível carregar as avaliações.",
+        );
+      }
+
+      setAvaliacoes(data.data || []);
+      setAvaliacoesCarregadas(true);
+    } catch (err: any) {
+      console.error("Erro ao carregar avaliações:", err);
+      setErroAvaliacoes(
+        "Não foi possível carregar as avaliações deste produto.",
+      );
+    } finally {
+      setCarregandoAvaliacoes(false);
+    }
+  };
+
+  const handleToggleAvaliacoes = () => {
+    const novoEstado = !mostrarAvaliacoes;
+    setMostrarAvaliacoes(novoEstado);
+
+    if (novoEstado && !avaliacoesCarregadas) {
+      fetchAvaliacoes();
+    }
+
+    if (novoEstado) {
+      setTimeout(() => {
+        document
+          .getElementById("secao-avaliacoes")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  };
+
+  const handleEnviarAvaliacao = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErroEnvio(null);
+    setSucessoEnvio(false);
+
+    if (!product) return;
+
+    if (notaSelecionada === 0) {
+      setErroEnvio("Selecione uma nota de 1 a 5 estrelas.");
+      return;
+    }
+
+    if (!usuarioLogado) {
+      setErroEnvio("Você precisa estar logado para avaliar este produto.");
+      return;
+    }
+
+    setEnviandoAvaliacao(true);
+    try {
+      const res = await fetch("http://localhost:3000/avaliacoes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${usuarioLogado.token}`,
+        },
+        body: JSON.stringify({
+          produto_id: product.id,
+          usuario_id: usuarioLogado.id,
+          nota: notaSelecionada,
+          comentario,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(
+          data.message || "Não foi possível enviar sua avaliação.",
+        );
+      }
+
+      const novaAvaliacao: Avaliacao = {
+        id: data.data?.id ?? Date.now(),
+        produto_id: Number(product.id),
+        usuario_id: usuarioLogado.id,
+        nota: notaSelecionada,
+        comentario,
+      };
+
+      setAvaliacoes((prev) => [novaAvaliacao, ...prev]);
+      setAvaliacoesCarregadas(true);
+
+      // Atualiza a média/total exibidos na tela sem precisar recarregar a página
+      setProduct((prev) => {
+        if (!prev) return prev;
+        const totalAtual = prev.avaliacao_total || 0;
+        const mediaAtual = prev.avaliacao_media || 0;
+        const novoTotal = totalAtual + 1;
+        const novaMedia =
+          (mediaAtual * totalAtual + notaSelecionada) / novoTotal;
+        return {
+          ...prev,
+          avaliacao_total: novoTotal,
+          avaliacao_media: Math.round(novaMedia * 100) / 100,
+        };
+      });
+
+      setNotaSelecionada(0);
+      setComentario("");
+      setSucessoEnvio(true);
+    } catch (err: any) {
+      setErroEnvio(err.message || "Erro ao enviar avaliação.");
+    } finally {
+      setEnviandoAvaliacao(false);
+    }
+  };
 
   const handleBuyViaWhatsApp = () => {
     if (!product) return;
@@ -231,7 +417,9 @@ export default function ProductPage() {
           <div className="flex flex-col">
             <nav className="text-sm text-gray-400 mb-4">
               Início &gt; Produtos &gt;{" "}
-              <span className="text-(--primary) font-medium">{product.nome}</span>
+              <span className="text-(--primary) font-medium">
+                {product.nome}
+              </span>
             </nav>
 
             <div className="flex gap-2 mb-3 flex-wrap">
@@ -260,9 +448,12 @@ export default function ProductPage() {
               <div className="flex gap-0.5">
                 {renderStars(product.avaliacao_media || 0)}
               </div>
-              <span className="text-sm text-gray-500 font-medium">
+              <button
+                onClick={handleToggleAvaliacoes}
+                className="text-sm text-gray-500 font-medium hover:text-(--secondary) hover:underline transition-colors cursor-pointer"
+              >
                 ({product.avaliacao_total || 0} avaliações)
-              </span>
+              </button>
             </div>
 
             {/* Preços */}
@@ -370,8 +561,20 @@ export default function ProductPage() {
             <button className="text-base font-semibold pb-4 text-(--secondary) border-b-2 border-(--secondary) whitespace-nowrap">
               Detalhes do produto
             </button>
-            <button className="text-base font-medium pb-4 text-gray-400 hover:text-(--text) transition-colors whitespace-nowrap">
+            <button
+              onClick={handleToggleAvaliacoes}
+              className={`text-base font-medium pb-4 transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                mostrarAvaliacoes
+                  ? "text-(--secondary) border-b-2 border-(--secondary)"
+                  : "text-gray-400 hover:text-(--text)"
+              }`}
+            >
               Avaliações ({product.avaliacao_total || 0})
+              {mostrarAvaliacoes ? (
+                <FaChevronUp className="text-[10px]" />
+              ) : (
+                <FaChevronDown className="text-[10px]" />
+              )}
             </button>
             <button className="text-base font-medium pb-4 text-gray-400 hover:text-(--text) transition-colors whitespace-nowrap">
               Dúvidas frequentes
@@ -567,7 +770,7 @@ export default function ProductPage() {
           </div>
 
           {relatedProducts.length > 0 && (
-            <div>
+            <div className="mb-12">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-bold text-gray-800">
                   Produtos que combinam com este item
@@ -600,6 +803,154 @@ export default function ProductPage() {
                   />
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Avaliações do produto: escondida por padrão, aparece ao clicar no número de avaliações */}
+          {mostrarAvaliacoes && (
+            <div
+              id="secao-avaliacoes"
+              className="pt-8 border-t border-gray-200/60"
+            >
+              <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-2">
+                <FaCommentDots className="text-(--secondary)" />
+                Avaliações do produto
+              </h2>
+
+              {/* Formulário de nova avaliação */}
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-8">
+                <h3 className="text-base font-bold text-gray-800 mb-4">
+                  Deixe sua avaliação
+                </h3>
+
+                {erroEnvio && (
+                  <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-4">
+                    <FaExclamationCircle className="shrink-0" />
+                    <span>{erroEnvio}</span>
+                  </div>
+                )}
+
+                {sucessoEnvio && (
+                  <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 mb-4">
+                    <FaCheckCircle className="shrink-0" />
+                    <span>Avaliação enviada com sucesso!</span>
+                  </div>
+                )}
+
+                {!usuarioLogado ? (
+                  <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 text-sm text-gray-600">
+                    Você precisa estar logado para avaliar este produto.{" "}
+                    <button
+                      onClick={() => navigate("/login")}
+                      className="text-(--secondary) font-semibold hover:underline cursor-pointer"
+                    >
+                      Fazer login
+                    </button>
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={handleEnviarAvaliacao}
+                    className="flex flex-col gap-4"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <span className="text-sm font-semibold text-gray-800">
+                        Sua nota:
+                      </span>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((valor) => {
+                          const preenchida =
+                            valor <= (notaHover || notaSelecionada);
+                          return (
+                            <button
+                              key={valor}
+                              type="button"
+                              onClick={() => setNotaSelecionada(valor)}
+                              onMouseEnter={() => setNotaHover(valor)}
+                              onMouseLeave={() => setNotaHover(0)}
+                              className="text-2xl transition-colors cursor-pointer"
+                              aria-label={`Dar nota ${valor} de 5`}
+                            >
+                              {preenchida ? (
+                                <FaStar className="text-(--secondary)" />
+                              ) : (
+                                <FaRegStar className="text-gray-300" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label
+                        htmlFor="comentario-avaliacao"
+                        className="text-sm font-semibold text-gray-800"
+                      >
+                        Seu comentário:
+                      </label>
+                      <textarea
+                        id="comentario-avaliacao"
+                        value={comentario}
+                        onChange={(e) => setComentario(e.target.value)}
+                        placeholder="Conte o que você achou do produto..."
+                        rows={3}
+                        className="w-full resize-none border border-gray-200 rounded-xl px-4 py-3 text-sm text-(--text) focus:outline-none focus:border-(--secondary) transition-colors"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={enviandoAvaliacao}
+                      className="self-start px-6 h-11 bg-(--secondary) hover:bg-[#7a3bb8] disabled:bg-gray-300 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    >
+                      {enviandoAvaliacao ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        <span>Enviar avaliação</span>
+                      )}
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              {/* Lista de avaliações */}
+              {carregandoAvaliacoes ? (
+                <div className="flex items-center justify-center gap-2 text-gray-500 py-8">
+                  <FaSpinner className="animate-spin" />
+                  <span>Carregando avaliações...</span>
+                </div>
+              ) : erroAvaliacoes ? (
+                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+                  <FaExclamationCircle className="shrink-0" />
+                  <span>{erroAvaliacoes}</span>
+                </div>
+              ) : avaliacoes.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-8">
+                  Nenhuma avaliação ainda. Seja o primeiro a avaliar este
+                  produto!
+                </p>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {avaliacoes.map((avaliacao) => (
+                    <div
+                      key={avaliacao.id}
+                      className="bg-white rounded-xl border border-gray-100 p-4 flex flex-col gap-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-0.5">
+                          {renderStars(avaliacao.nota)}
+                        </div>
+                        <span className="text-xs text-gray-400 font-medium">
+                          Nota {avaliacao.nota}/5
+                        </span>
+                      </div>
+                      <p className="text-sm text-(--text) leading-relaxed">
+                        {avaliacao.comentario || "Sem comentário."}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </section>

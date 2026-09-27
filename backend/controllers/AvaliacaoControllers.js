@@ -27,8 +27,8 @@ const AvaliacaoController = {
   },
   getAll: async (req, res) => {
     try {
-      const { produto_id } = req.params;
-      const result = AvaliacaoModel.getAll(produto_id);
+      const { id } = req.params;
+      const result = await AvaliacaoModel.getAll(id);
       if (!result) {
         return res.status(500).json({
           success: false,

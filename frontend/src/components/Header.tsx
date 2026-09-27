@@ -1,7 +1,7 @@
 "use client";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { CiCirclePlus } from "react-icons/ci";
+import { GoPlus } from "react-icons/go";
 
 export default function Header() {
   const location = useLocation();
@@ -37,8 +37,9 @@ export default function Header() {
           isAdmin &&
           location.pathname !== "/product/register" && (
             <Link to="/product/register">
-              <button className="bg-plum-600 rounded-full text-white text-[1em] py-2 px-4 font-normal font-sans cursor-pointer hover:scale-105 duration-300 transition-all">
-                Criar Produto
+              <button className="bg-plum-600 rounded-full text-white text-[1em] py-2 px-4 font-normal font-sans cursor-pointer hover:scale-105 duration-300 transition-all flex gap-2 items-center justify-center">
+                <GoPlus className="text-white text-2xl" />
+                Novo Produto
               </button>
             </Link>
           )}

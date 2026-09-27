@@ -78,12 +78,12 @@ export default function ProductCard({ produto }: ProdutoCardProps) {
               <span className="text-[13px] text-gray-700 line-through">
                 R$ {precoBase.toFixed(2).replace(".", ",")}
               </span>
-              <span className="text-[22px] font-bold text-(--secondary) leading-none mt-1">
+              <span className="text-[22px] font-bold text-plum-700 leading-none mt-1">
                 R$ {precoComDesconto.toFixed(2).replace(".", ",")}
               </span>
             </div>
           ) : (
-            <span className="text-[22px] font-bold text-(--secondary) leading-none">
+            <span className="text-[22px] font-bold text-plum-700 leading-none">
               R$ {precoBase.toFixed(2).replace(".", ",")}
             </span>
           )}
@@ -95,7 +95,7 @@ export default function ProductCard({ produto }: ProdutoCardProps) {
             e.stopPropagation();
             // Lógica de compra / redirecionamento WhatsApp
           }}
-          className="w-full h-9 bg-(--secondary) hover:bg-[#7a3bb8] active:bg-[#6931a2] text-white font-medium text-[20px] rounded-2xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+          className="w-full h-9 bg-plum-700 hover:bg-[#7a3bb8] active:bg-[#6931a2] text-white font-medium text-[20px] rounded-2xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
         >
           <FaWhatsapp className="text-[20px]" />
           <span>Comprar</span>

@@ -19,59 +19,49 @@ export default function Login() {
     }
   }, [location.pathname]);
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+ async function handleLogin(e: React.FormEvent) {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const dadosLogin = {
-        email: email,
-        senha: password,
-      };
+  try {
+    const response = await fetch("http://localhost:3000/users/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, senha: password }),
+    });
 
-      const response = await fetch("http://localhost:3000/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dadosLogin),
-      });
-
-      if (!response.ok) {
-        throw new Error("Falha no login. Verifique suas credenciais.");
-      }
-
-      const resultado = await response.json();
-
-      if (resultado.success) {
-        const { token, usuarioCargo, usuarioId, expiresIn } = resultado;
-
-        // Tratamento robusto para expiração:
-        const now = new Date();
-        let expirationDate: Date;
-
-        // Se expiresIn vier em segundos (ex: 3600 do JWT)
-        const seconds = parseInt(expiresIn, 10);
-        if (!isNaN(seconds)) {
-          expirationDate = new Date(now.getTime() + seconds * 1000);
-        } else {
-          // Se vier como uma data completa da API
-          expirationDate = new Date(expiresIn);
-        }
-
-        login(token, usuarioCargo, usuarioId, expirationDate);
-        navigate("/");
-      } else {
-        setError(resultado.message || "Erro ao fazer login");
-      }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Erro ao fazer login");
-      console.error(error);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error("Falha no login. Verifique suas credenciais.");
     }
+
+    const resultado = await response.json();
+
+    if (!resultado.success) {
+      setError(resultado.message || "Erro ao fazer login");
+      return;
+    }
+
+    const { token, usuarioCargo, usuarioId, expiresIn } = resultado;
+
+    // expiresIn vem SEMPRE como string em horas (ex: "24")
+    const hours = parseFloat(expiresIn);
+    if (isNaN(hours) || hours <= 0) {
+      throw new Error("expiresIn inválido retornado pela API");
+    }
+
+    const expirationDate = new Date(Date.now() + hours * 60 * 60 * 1000);
+
+    login(token, usuarioCargo, usuarioId, expirationDate);
+    console.log(token, "\n", expirationDate, "\n", expiresIn)
+    navigate("/");
+  } catch (error) {
+    setError(error instanceof Error ? error.message : "Erro ao fazer login");
+    console.error(error);
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div className="h-full w-full flex items-start justify-center bg-linear-to-br  py-8 ">

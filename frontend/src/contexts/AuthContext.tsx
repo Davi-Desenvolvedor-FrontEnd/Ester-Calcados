@@ -1,15 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { getToken, getCargo } from "../auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (
-    token: string,
-    cargo: string,
-    userId: string,
-    expiresIn: Date,
-  ) => void;
+  login: (token: string, cargo: string, userId: string, expiresIn: Date) => void;
   logout: () => void;
 }
 
@@ -18,58 +20,78 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const timerRef = useRef<number | null>(null);
 
-  const checkAuth = () => {
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("cargo");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("expiresIn");
+    setIsAuthenticated(false);
+    setIsAdmin(false);
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const checkAuth = useCallback(() => {
     const token = getToken();
-    const cargo = getCargo();
-    setIsAuthenticated(!!token);
-    setIsAdmin(cargo === "adm");
-    console.log("Auth check:", {
-      token,
-      cargo,
-      isAuthenticated: !!token,
-      isAdmin: cargo === "adm",
-    });
-  };
+    const expiresIn = localStorage.getItem("expiresIn");
 
-  useEffect(() => {
-  const expiresIn = localStorage.getItem("expiresIn");
+    if (!token || !expiresIn) {
+      logout();
+      return false;
+    }
 
-  if (expiresIn) {
     const expirationDate = new Date(expiresIn);
-    const now = new Date();
+    if (isNaN(expirationDate.getTime()) || expirationDate <= new Date()) {
+      logout();
+      return false;
+    }
 
-    if (isNaN(expirationDate.getTime()) || expirationDate < now) {
+    setIsAuthenticated(true);
+    setIsAdmin(getCargo() === "adm");
+    return true;
+  }, [logout]);
+
+  const scheduleAutoLogout = useCallback(() => {
+    if (timerRef.current !== null) clearTimeout(timerRef.current);
+
+    const expiresIn = localStorage.getItem("expiresIn");
+    if (!expiresIn) return;
+
+    const ms = new Date(expiresIn).getTime() - Date.now();
+    if (ms <= 0) {
       logout();
       return;
     }
-  }
 
-  checkAuth();
-}, []);
+    // setTimeout tem limite de ~24.8 dias
+    if (ms > 2_147_483_647) return;
 
-  const login = (
-  token: string,
-  cargo: string,
-  userId: string,
-  expiresIn: Date,
-) => {
-  localStorage.setItem("token", token);
-  localStorage.setItem("cargo", cargo);
-  localStorage.setItem("userId", userId);
-  localStorage.setItem("expiresIn", expiresIn.toISOString()); // ISO String padronizada
-  checkAuth();
-};
+    timerRef.current = window.setTimeout(logout, ms);
+  }, [logout]);
 
-  const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("cargo");
-  localStorage.removeItem("userId");
-  localStorage.removeItem("expiresIn");
-  
-  setIsAuthenticated(false);
-  setIsAdmin(false);
-};
+  const login = useCallback(
+    (token: string, cargo: string, userId: string, expiresIn: Date) => {
+      localStorage.setItem("token", token);
+      localStorage.setItem("cargo", cargo);
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("expiresIn", expiresIn.toISOString());
+      checkAuth();
+      scheduleAutoLogout();
+    },
+    [checkAuth, scheduleAutoLogout]
+  );
+
+  useEffect(() => {
+    if (checkAuth()) scheduleAutoLogout();
+    return () => {
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
+    };
+  }, [checkAuth, scheduleAutoLogout]);
+
   return (
     <AuthContext.Provider value={{ isAuthenticated, isAdmin, login, logout }}>
       {children}
