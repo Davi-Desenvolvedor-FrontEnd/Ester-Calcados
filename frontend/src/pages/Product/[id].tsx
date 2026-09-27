@@ -12,20 +12,7 @@ import {
   FaChevronRight,
   FaChevronDown,
   FaChevronUp,
-  FaStore,
-  FaExchangeAlt,
-  FaShieldAlt,
   FaSpinner,
-  FaTruck,
-  FaCreditCard,
-  FaUndo,
-  FaTag,
-  FaBox,
-  FaClock,
-  FaMedal,
-  FaAward,
-  FaLeaf,
-  FaRecycle,
   FaExclamationCircle,
   FaCheckCircle,
   FaCommentDots,
@@ -38,7 +25,6 @@ type ProductPageProps = {
   id: string;
 };
 
-// Formato de avaliação retornado pela rota GET /avaliacoes/:id
 type Avaliacao = {
   id: number;
   produto_id: number;
@@ -48,8 +34,6 @@ type Avaliacao = {
   criado_em?: string;
 };
 
-// Usuário autenticado salvo no localStorage após o login.
-// Ajuste as chaves/campos abaixo conforme o formato real usado no restante do site.
 type UsuarioLogado = {
   id: any;
   token: string;
@@ -60,14 +44,12 @@ function getUsuarioLogado(): UsuarioLogado | null {
     const token = getToken();
     const usuarioId = getUserId();
     if (!token || !usuarioId) return null;
-
     return { id: usuarioId, token };
   } catch {
     return null;
   }
 }
 
-// SUBSTiTUA pelo número comercial do seu WhatsApp (DDD + Número, sem espaços ou traços)
 const PHONE_NUMBER = "5534999999999";
 
 export default function ProductPage() {
@@ -82,7 +64,6 @@ export default function ProductPage() {
   const [mainPhoto, setMainPhoto] = useState<string>("");
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
-  // --- Avaliações ---
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [avaliacoesCarregadas, setAvaliacoesCarregadas] =
     useState<boolean>(false);
@@ -113,21 +94,18 @@ export default function ProductPage() {
         }
         const dataProduct = await resProduct.json();
         const produtoObtido: Produto = dataProduct.data || dataProduct;
-
         setProduct(produtoObtido);
-
-        const imgUrl = `http://localhost:3000/imagens/${produtoObtido.imagem_url}`;
-        setMainPhoto(imgUrl);
+        setMainPhoto(
+          `http://localhost:3000/imagens/${produtoObtido.imagem_url}`,
+        );
 
         const resRelated = await fetch("http://localhost:3000/produtos");
         if (resRelated.ok) {
           const dataRelated = await resRelated.json();
           const listaTotal: Produto[] = dataRelated.data || dataRelated;
-
           const filtrados = listaTotal
             .filter((item) => Number(item.id) !== Number(id))
             .slice(0, 4);
-
           setRelatedProducts(filtrados);
         }
       } catch (err: any) {
@@ -138,11 +116,8 @@ export default function ProductPage() {
       }
     };
 
-    if (id) {
-      fetchData();
-    }
+    if (id) fetchData();
 
-    // Reseta o estado de avaliações ao trocar de produto
     setMostrarAvaliacoes(false);
     setAvaliacoesCarregadas(false);
     setAvaliacoes([]);
@@ -157,19 +132,13 @@ export default function ProductPage() {
     setCarregandoAvaliacoes(true);
     setErroAvaliacoes(null);
     try {
-      const res = await fetch(`http://localhost:3000/avaliacoes/${id}`, {
-        method: "GET",
-      });
+      const res = await fetch(`http://localhost:3000/avaliacoes/${id}`);
       const data = await res.json();
-
-      console.log(data)
-
       if (!res.ok || !data.success) {
         throw new Error(
           data.message || "Não foi possível carregar as avaliações.",
         );
       }
-
       setAvaliacoes(data.data || []);
       setAvaliacoesCarregadas(true);
     } catch (err: any) {
@@ -185,11 +154,7 @@ export default function ProductPage() {
   const handleToggleAvaliacoes = () => {
     const novoEstado = !mostrarAvaliacoes;
     setMostrarAvaliacoes(novoEstado);
-
-    if (novoEstado && !avaliacoesCarregadas) {
-      fetchAvaliacoes();
-    }
-
+    if (novoEstado && !avaliacoesCarregadas) fetchAvaliacoes();
     if (novoEstado) {
       setTimeout(() => {
         document
@@ -203,19 +168,15 @@ export default function ProductPage() {
     e.preventDefault();
     setErroEnvio(null);
     setSucessoEnvio(false);
-
     if (!product) return;
-
     if (notaSelecionada === 0) {
       setErroEnvio("Selecione uma nota de 1 a 5 estrelas.");
       return;
     }
-
     if (!usuarioLogado) {
       setErroEnvio("Você precisa estar logado para avaliar este produto.");
       return;
     }
-
     setEnviandoAvaliacao(true);
     try {
       const res = await fetch("http://localhost:3000/avaliacoes", {
@@ -231,15 +192,12 @@ export default function ProductPage() {
           comentario,
         }),
       });
-
       const data = await res.json();
-
       if (!res.ok || !data.success) {
         throw new Error(
           data.message || "Não foi possível enviar sua avaliação.",
         );
       }
-
       const novaAvaliacao: Avaliacao = {
         id: data.data?.id ?? Date.now(),
         produto_id: Number(product.id),
@@ -247,11 +205,8 @@ export default function ProductPage() {
         nota: notaSelecionada,
         comentario,
       };
-
       setAvaliacoes((prev) => [novaAvaliacao, ...prev]);
       setAvaliacoesCarregadas(true);
-
-      // Atualiza a média/total exibidos na tela sem precisar recarregar a página
       setProduct((prev) => {
         if (!prev) return prev;
         const totalAtual = prev.avaliacao_total || 0;
@@ -265,7 +220,6 @@ export default function ProductPage() {
           avaliacao_media: Math.round(novaMedia * 100) / 100,
         };
       });
-
       setNotaSelecionada(0);
       setComentario("");
       setSucessoEnvio(true);
@@ -278,21 +232,10 @@ export default function ProductPage() {
 
   const handleBuyViaWhatsApp = () => {
     if (!product) return;
-
-    // Obtém o link atual da página do produto hospedada na Vercel/Netlify
     const productUrl = window.location.href;
-
-    // Monta a mensagem incluindo o link e o nome do produto
     let message = `${productUrl}\n\nOlá, quero comprar '${product.nome}'`;
-
-    if (quantity > 1) {
-      message += ` - Qtd: ${quantity}`;
-    }
-
-    // Codifica a mensagem para o formato de URL
+    if (quantity > 1) message += ` - Qtd: ${quantity}`;
     const encodedMessage = encodeURIComponent(message);
-
-    // Abre o WhatsApp Comercial em uma nova aba
     window.open(
       `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`,
       "_blank",
@@ -343,15 +286,15 @@ export default function ProductPage() {
   const precoComDesconto = temDesconto
     ? precoOriginal * (1 - product.desconto / 100)
     : precoOriginal;
-
   const tamanhosDisponiveis = product.tamanhos
     ? product.tamanhos.split(";")
     : [];
 
   return (
     <div className="bg-[#fafafb] min-h-screen font-['Poppins',sans-serif]">
-      <main className="max-w-360 mx-auto px-4 md:px-8 py-8 md:py-12">
+      <main className="max-w-3/4 mx-auto px-4 md:px-4 py-8 md:py-4">
         <section className="grid grid-cols-1 lg:grid-cols-[45%_55%] gap-8 mb-16">
+          {/* Foto */}
           <div className="flex flex-col gap-4">
             <div className="w-full aspect-square bg-white rounded-3xl relative flex items-center justify-center p-6 overflow-hidden border border-gray-100 shadow-sm">
               {temDesconto && (
@@ -374,46 +317,29 @@ export default function ProductPage() {
                   <FaShareAlt />
                 </button>
               </div>
-
               <img
                 src={mainPhoto}
                 alt={product.nome}
                 className="max-h-full max-w-full object-contain"
               />
             </div>
-
             <div className="flex gap-8 justify-center">
-              <div className="w-20 h-20 overflow-hidden flex items-center justify-center bg-white cursor-pointer">
-                <img
-                  src={mainPhoto}
-                  alt="thumb 1"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-20 h-20 overflow-hidden flex items-center justify-center bg-white cursor-pointer hover:border-(--secondary) transition-colors">
-                <img
-                  src={mainPhoto}
-                  alt="thumb 2"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-20 h-20 overflow-hidden flex items-center justify-center bg-white cursor-pointer hover:border-(--secondary) transition-colors">
-                <img
-                  src={mainPhoto}
-                  alt="thumb 3"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-20 h-20 overflow-hidden flex items-center justify-center bg-white cursor-pointer hover:border-(--secondary) transition-colors">
-                <img
-                  src={mainPhoto}
-                  alt="thumb 4"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              {[1, 2, 3, 4].map((n) => (
+                <div
+                  key={n}
+                  className="w-20 h-20 overflow-hidden flex items-center justify-center bg-white cursor-pointer hover:border-(--secondary) transition-colors"
+                >
+                  <img
+                    src={mainPhoto}
+                    alt={`thumb ${n}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
+          {/* Informações principais */}
           <div className="flex flex-col">
             <nav className="text-sm text-gray-400 mb-4">
               Início &gt; Produtos &gt;{" "}
@@ -443,7 +369,6 @@ export default function ProductPage() {
               {product.nome}
             </h1>
 
-            {/* Avaliações */}
             <div className="flex items-center gap-2 mb-4">
               <div className="flex gap-0.5">
                 {renderStars(product.avaliacao_media || 0)}
@@ -456,7 +381,6 @@ export default function ProductPage() {
               </button>
             </div>
 
-            {/* Preços */}
             <div className="mb-4">
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl font-bold text-(--secondary)">
@@ -516,7 +440,6 @@ export default function ProductPage() {
                     <FaPlus className="text-xs" />
                   </button>
                 </div>
-
                 <button
                   onClick={handleBuyViaWhatsApp}
                   disabled={product.estoque === 0}
@@ -525,32 +448,6 @@ export default function ProductPage() {
                   <FaShoppingBag className="text-lg" />
                   <span>Comprar agora</span>
                 </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 mt-6">
-              <div className="bg-white p-3 rounded-xl border border-gray-100 flex flex-col items-center text-center gap-1">
-                <FaTruck className="text-xl text-(--secondary)" />
-                <p className="text-xs font-semibold text-gray-800">
-                  Frete Grátis
-                </p>
-                <p className="text-[10px] text-gray-500">Acima de R$ 200</p>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-100 flex flex-col items-center text-center gap-1">
-                <FaCreditCard className="text-xl text-(--secondary)" />
-                <p className="text-xs font-semibold text-gray-800">
-                  12x sem juros
-                </p>
-                <p className="text-[10px] text-gray-500">
-                  No cartão de crédito
-                </p>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-100 flex flex-col items-center text-center gap-1">
-                <FaUndo className="text-xl text-(--secondary)" />
-                <p className="text-xs font-semibold text-gray-800">
-                  Troca Fácil
-                </p>
-                <p className="text-[10px] text-gray-500">Até 30 dias</p>
               </div>
             </div>
           </div>
@@ -576,197 +473,6 @@ export default function ProductPage() {
                 <FaChevronDown className="text-[10px]" />
               )}
             </button>
-            <button className="text-base font-medium pb-4 text-gray-400 hover:text-(--text) transition-colors whitespace-nowrap">
-              Dúvidas frequentes
-            </button>
-            <button className="text-base font-medium pb-4 text-gray-400 hover:text-(--text) transition-colors whitespace-nowrap">
-              Envio e devolução
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <FaBox className="text-(--secondary)" />
-                Informações técnicas
-              </h3>
-              <ul className="flex flex-col text-sm divide-y divide-gray-100">
-                <li className="flex py-3">
-                  <span className="w-1/2 font-semibold text-gray-800">
-                    Código do produto
-                  </span>
-                  <span className="text-(--text)">#{product.id}</span>
-                </li>
-                <li className="flex py-3">
-                  <span className="w-1/2 font-semibold text-gray-800">
-                    Estoque
-                  </span>
-                  <span className="text-(--text)">
-                    {product.estoque} unidades
-                  </span>
-                </li>
-                <li className="flex py-3">
-                  <span className="w-1/2 font-semibold text-gray-800">
-                    Tamanhos
-                  </span>
-                  <span className="text-(--text)">
-                    {tamanhosDisponiveis.join(",") || "Consulte a loja"}
-                  </span>
-                </li>
-                <li className="flex py-3">
-                  <span className="w-1/2 font-semibold text-gray-800">
-                    Categoria
-                  </span>
-                  <span className="text-(--text)">Moda & Acessórios</span>
-                </li>
-                <li className="flex py-3">
-                  <span className="w-1/2 font-semibold text-gray-800">SKU</span>
-                  <span className="text-(--text)">
-                    SKU-{product.id}-00{product.id}
-                  </span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <FaMedal className="text-(--secondary)" />
-                Benefícios exclusivos
-              </h3>
-              <ul className="space-y-3 text-sm">
-                <li className="flex items-start gap-3">
-                  <FaTag className="text-(--secondary) mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Preço imperdível
-                    </p>
-                    <p className="text-gray-500">
-                      Ofertas exclusivas em produtos selecionados
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <FaClock className="text-(--secondary) mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Entrega rápida
-                    </p>
-                    <p className="text-gray-500">Receba em até 3 dias úteis</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <FaAward className="text-(--secondary) mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Produto original
-                    </p>
-                    <p className="text-gray-500">Garantia de autenticidade</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <FaLeaf className="text-(--secondary) mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Embalagem sustentável
-                    </p>
-                    <p className="text-gray-500">
-                      Compromisso com o meio ambiente
-                    </p>
-                  </div>
-                </li>
-              </ul>
-            </div>
-
-            {/* Coluna 3 - Políticas */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <FaShieldAlt className="text-(--secondary)" />
-                Políticas da loja
-              </h3>
-              <ul className="space-y-3 text-sm">
-                <li className="flex items-start gap-3">
-                  <FaStore className="text-(--secondary) mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Retirada na loja
-                    </p>
-                    <p className="text-gray-500">
-                      Disponível para retirada em até 2h
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <FaExchangeAlt className="text-(--secondary) mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Troca garantida
-                    </p>
-                    <p className="text-gray-500">
-                      Até 7 dias após o recebimento
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <FaRecycle className="text-(--secondary) mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Devolução gratuita
-                    </p>
-                    <p className="text-gray-500">Primeira troca sem custos</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <FaCreditCard className="text-(--secondary) mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Pagamento seguro
-                    </p>
-                    <p className="text-gray-500">Ambiente criptografado SSL</p>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Descrição detalhada */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-12">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">
-              Descrição completa
-            </h3>
-            <div className="prose prose-sm max-w-none text-(--text) leading-relaxed space-y-4">
-              <p>
-                <strong>{product.nome}</strong> - Este produto foi
-                cuidadosamente selecionado para oferecer a melhor experiência
-                aos nossos clientes. Com design moderno e acabamento impecável,
-                é a escolha perfeita para quem busca qualidade e estilo.
-              </p>
-              <p>
-                <strong>Características principais:</strong>
-              </p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>
-                  Material de primeira linha, garantindo durabilidade e conforto
-                </li>
-                <li>Design exclusivo que combina com diversos estilos</li>
-                <li>Acabamento premium com atenção aos detalhes</li>
-                <li>Ideal para uso diário ou ocasiões especiais</li>
-                <li>Fácil manutenção e limpeza</li>
-              </ul>
-              <p>
-                <strong>Especificações técnicas:</strong>
-              </p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Composição: Materiais de alta qualidade</li>
-                <li>Origem: Produção nacional com padrões internacionais</li>
-                <li>Garantia: 3 meses contra defeitos de fabricação</li>
-                <li>Peso aproximado: 0.5kg - 1.0kg</li>
-              </ul>
-              <p>
-                Ao adquirir este produto, você está investindo em qualidade e
-                estilo. Nossa loja oferece garantia de satisfação e suporte
-                completo para sua melhor experiência de compra.
-              </p>
-            </div>
           </div>
 
           {relatedProducts.length > 0 && (
@@ -782,7 +488,6 @@ export default function ProductPage() {
                   Ver todos <FaChevronRight className="text-xs" />
                 </button>
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {relatedProducts.map((item) => (
                   <ProductCard
@@ -806,7 +511,6 @@ export default function ProductPage() {
             </div>
           )}
 
-          {/* Avaliações do produto: escondida por padrão, aparece ao clicar no número de avaliações */}
           {mostrarAvaliacoes && (
             <div
               id="secao-avaliacoes"
@@ -816,8 +520,43 @@ export default function ProductPage() {
                 <FaCommentDots className="text-(--secondary)" />
                 Avaliações do produto
               </h2>
-
-              {/* Formulário de nova avaliação */}
+              {carregandoAvaliacoes ? (
+                <div className="flex items-center justify-center gap-2 text-gray-500 py-8">
+                  <FaSpinner className="animate-spin" />
+                  <span>Carregando avaliações...</span>
+                </div>
+              ) : erroAvaliacoes ? (
+                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+                  <FaExclamationCircle className="shrink-0" />
+                  <span>{erroAvaliacoes}</span>
+                </div>
+              ) : avaliacoes.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-8">
+                  Nenhuma avaliação ainda. Seja o primeiro a avaliar este
+                  produto!
+                </p>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {avaliacoes.map((avaliacao) => (
+                    <div
+                      key={avaliacao.id}
+                      className="bg-white rounded-xl border border-gray-100 p-4 flex flex-col gap-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-0.5">
+                          {renderStars(avaliacao.nota)}
+                        </div>
+                        <span className="text-xs text-gray-400 font-medium">
+                          Nota {avaliacao.nota}/5
+                        </span>
+                      </div>
+                      <p className="text-sm text-(--text) leading-relaxed">
+                        {avaliacao.comentario || "Sem comentário."}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-8">
                 <h3 className="text-base font-bold text-gray-800 mb-4">
                   Deixe sua avaliação
@@ -912,45 +651,6 @@ export default function ProductPage() {
                   </form>
                 )}
               </div>
-
-              {/* Lista de avaliações */}
-              {carregandoAvaliacoes ? (
-                <div className="flex items-center justify-center gap-2 text-gray-500 py-8">
-                  <FaSpinner className="animate-spin" />
-                  <span>Carregando avaliações...</span>
-                </div>
-              ) : erroAvaliacoes ? (
-                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
-                  <FaExclamationCircle className="shrink-0" />
-                  <span>{erroAvaliacoes}</span>
-                </div>
-              ) : avaliacoes.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-8">
-                  Nenhuma avaliação ainda. Seja o primeiro a avaliar este
-                  produto!
-                </p>
-              ) : (
-                <div className="flex flex-col gap-4">
-                  {avaliacoes.map((avaliacao) => (
-                    <div
-                      key={avaliacao.id}
-                      className="bg-white rounded-xl border border-gray-100 p-4 flex flex-col gap-2"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="flex gap-0.5">
-                          {renderStars(avaliacao.nota)}
-                        </div>
-                        <span className="text-xs text-gray-400 font-medium">
-                          Nota {avaliacao.nota}/5
-                        </span>
-                      </div>
-                      <p className="text-sm text-(--text) leading-relaxed">
-                        {avaliacao.comentario || "Sem comentário."}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
         </section>

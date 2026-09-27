@@ -5,6 +5,7 @@ import SideBar, { type FilterState } from "../components/SideBar.tsx";
 import Benefits from "../components/Benefits.tsx";
 import Hero from "../components/Hero.tsx";
 import type { OrdenacaoOpcao, Produto } from "../types/index.tsx";
+import useDrawer from "../components/Drawer.tsx";
 
 export default function App() {
   const [sideBarVisible, setSideBarVisible] = useState(false);
@@ -115,8 +116,11 @@ export default function App() {
     };
   }, [sideBarVisible]);
 
+  const { Drawer, drawerVisible } = useDrawer();
+
   return (
     <div className="w-full min-h-screen bg-[#fafafb] flex flex-col font-['Poppins',sans-serif]">
+      <Drawer />
       <main className="flex max-w-360 mx-auto w-full p-4 md:p-8 gap-8 flex-col">
         <Hero />
         <Benefits />
@@ -141,7 +145,7 @@ export default function App() {
                 : "-translate-x-full opacity-0 pointer-events-none"
             }
             lg:sticky lg:top-24 lg:z-0 lg:h-fit lg:w-80 lg:shrink-0 lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto lg:shadow-none
-           `}  
+           `}
           />
           <ProductContainer
             produtos={produtosFiltrados}
