@@ -23,7 +23,7 @@ export default function ProductCard({ produto }: ProdutoCardProps) {
       return isFilled ? (
         <FaStar key={i} className="text-[#e56b92] text-[14px]" />
       ) : (
-        <FaRegStar key={i} className="text-gray-400 text-[14px]" />
+        <FaRegStar key={i} className="text-gray-700 text-[14px]" />
       );
     });
   };
@@ -53,7 +53,7 @@ export default function ProductCard({ produto }: ProdutoCardProps) {
       </div>
 
       <div className="flex flex-col grow px-4 py-2">
-        <h3 className="text-[15px] font-medium text-gray-700 line-clamp-2 mb-2 leading-tight">
+        <h3 className="text-[20px] font-medium text-gray-700 line-clamp-2 mb-2 leading-tight">
           {produto.nome}
         </h3>
 
@@ -63,27 +63,27 @@ export default function ProductCard({ produto }: ProdutoCardProps) {
               <div className="flex gap-0.5 text-[#8b46cd] text-[12px]">
                 {renderStars(avaliacaoMedia)}
               </div>
-              <p className="text-[12px] text-gray-400 font-medium">
+              <p className="text-[12px] text-gray-700 font-medium">
                 ({avaliacaoTotal})
               </p>
             </>
           ) : (
-            <p className="text-[12px] text-gray-400">Sem avaliações</p>
+            <p className="text-[12px] text-gray-700">Sem avaliações</p>
           )}
         </div>
 
         <div className="mt-auto mb-4">
           {desconto > 0 ? (
             <div className="flex flex-col">
-              <span className="text-[13px] text-gray-400 line-through">
+              <span className="text-[13px] text-gray-700 line-through">
                 R$ {precoBase.toFixed(2).replace(".", ",")}
               </span>
-              <span className="text-[22px] font-bold text-[#8b46cd] leading-none mt-1">
+              <span className="text-[22px] font-bold text-(--secondary) leading-none mt-1">
                 R$ {precoComDesconto.toFixed(2).replace(".", ",")}
               </span>
             </div>
           ) : (
-            <span className="text-[22px] font-bold text-[#8b46cd] leading-none">
+            <span className="text-[22px] font-bold text-(--secondary) leading-none">
               R$ {precoBase.toFixed(2).replace(".", ",")}
             </span>
           )}
@@ -95,7 +95,7 @@ export default function ProductCard({ produto }: ProdutoCardProps) {
             e.stopPropagation();
             // Lógica de compra / redirecionamento WhatsApp
           }}
-          className="w-full h-11 bg-[#8b46cd] hover:bg-[#7a3bb8] active:bg-[#6931a2] text-white font-medium text-[20px] rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+          className="w-full h-9 bg-(--secondary) hover:bg-[#7a3bb8] active:bg-[#6931a2] text-white font-medium text-[20px] rounded-2xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
         >
           <FaWhatsapp className="text-[20px]" />
           <span>Comprar</span>

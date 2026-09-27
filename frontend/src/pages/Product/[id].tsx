@@ -25,8 +25,8 @@ import {
   FaLeaf,
   FaRecycle,
 } from "react-icons/fa";
-import type { Produto } from "..";
 import ProductCard from "../../components/ProductCard";
+import type { Produto } from "../../types";
 
 type ProductPageProps = {
   id: string;
@@ -43,7 +43,6 @@ export default function ProductPage() {
   const [relatedProducts, setRelatedProducts] = useState<Produto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSize, setSelectedSize] = useState<string[]>([]);
   const [quantity, setQuantity] = useState<number>(1);
   const [mainPhoto, setMainPhoto] = useState<string>("");
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
@@ -100,10 +99,6 @@ export default function ProductPage() {
     // Monta a mensagem incluindo o link e o nome do produto
     let message = `${productUrl}\n\nOlá, quero comprar '${product.nome}'`;
 
-    if (selectedSize) {
-      message += ` (Tamanho: ${selectedSize})`;
-    }
-
     if (quantity > 1) {
       message += ` - Qtd: ${quantity}`;
     }
@@ -124,7 +119,7 @@ export default function ProductPage() {
       return isFilled ? (
         <FaStar key={i} className="text-(--secondary) text-[14px]" />
       ) : (
-        <FaRegStar key={i} className="text-gray-300 text-[14px]" />
+        <FaRegStar key={i} className="text-gray-600 text-[14px]" />
       );
     });
   };
@@ -236,7 +231,7 @@ export default function ProductPage() {
           <div className="flex flex-col">
             <nav className="text-sm text-gray-400 mb-4">
               Início &gt; Produtos &gt;{" "}
-              <span className="text-(--text) font-medium">{product.nome}</span>
+              <span className="text-(--primary) font-medium">{product.nome}</span>
             </nav>
 
             <div className="flex gap-2 mb-3 flex-wrap">
@@ -295,18 +290,13 @@ export default function ProductPage() {
                   Tamanhos disponíveis:
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {tamanhosDisponiveis.map((size) => (
-                    <button
+                  {tamanhosDisponiveis.map((size: any) => (
+                    <div
                       key={size}
-                      onClick={() => setSelectedSize([...selectedSize, size])}
-                      className={`h-10 min-w-10 px-3 rounded-md border text-sm font-medium transition-all ${
-                        selectedSize.includes(size)
-                          ? "bg-(--secondary) text-white border-(--secondary) shadow-sm"
-                          : "bg-white text-gray-700 border-gray-200 hover:border-(--secondary)"
-                      }`}
+                      className="h-10 min-w-10 px-3 rounded-md border text-sm font-medium transition-all justify-center items-center flex border-gray-500 text-gray-700"
                     >
                       {size}
-                    </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -594,16 +584,19 @@ export default function ProductPage() {
                 {relatedProducts.map((item) => (
                   <ProductCard
                     key={item.id}
-                    id={item.id}
-                    name={item.nome}
-                    description={item.descricao}
-                    destaque={item.destaque}
-                    estoque={item.estoque}
-                    photo={`http://localhost:3000/imagens/${item.imagem_url}`}
-                    price={item.preco}
-                    rating={item.avaliacao_media ?? 0}
-                    nRating={item.avaliacao_total ?? 0}
-                    desconto={item.desconto}
+                    produto={{
+                      id: item.id,
+                      nome: item.nome,
+                      descricao: item.descricao,
+                      destaque: item.destaque,
+                      estoque: item.estoque,
+                      imagem_url: `http://localhost:3000/imagens/${item.imagem_url}`,
+                      preco: item.preco,
+                      avaliacao_media: item.avaliacao_media ?? 0,
+                      avaliacao_total: item.avaliacao_total ?? 0,
+                      desconto: item.desconto,
+                      categoria_id: item.categoria_id,
+                    }}
                   />
                 ))}
               </div>
