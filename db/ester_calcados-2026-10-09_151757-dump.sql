@@ -16,6 +16,24 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `avaliacoes`
+--
+
+DROP TABLE IF EXISTS `avaliacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `avaliacoes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `produto_id` int NOT NULL,
+  `usuario_id` int NOT NULL,
+  `nota` tinyint NOT NULL,
+  `comentario` varchar(204) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `avaliacoes_chk_1` CHECK ((`nota` between 1 and 5))
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `categorias`
 --
 
@@ -48,13 +66,16 @@ CREATE TABLE `produtos` (
   `estoque` int NOT NULL DEFAULT '0',
   `imagem_url` varchar(255) NOT NULL,
   `desconto` int DEFAULT NULL,
+  `avaliacao_media` decimal(3,2) DEFAULT '0.00',
+  `avaliacao_total` int DEFAULT '0',
   `categoria_id` int DEFAULT NULL,
   `destaque` tinyint(1) DEFAULT '0',
   `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `atualizado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `tamanhos` varchar(204) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `produtos_chk_1` CHECK ((`desconto` between 0 and 100))
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -72,7 +93,7 @@ CREATE TABLE `usuarios` (
   `cargo` varchar(124) NOT NULL DEFAULT 'comum',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -84,4 +105,4 @@ CREATE TABLE `usuarios` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-30 12:11:23
+-- Dump completed on 2026-10-09 15:17:58
